@@ -1,0 +1,62 @@
+[
+    {
+        "building_name": "B8",
+        "total_floors": 4,
+        "rooms_per_floor": 9,
+        "rent_per_month": 580000,
+        "people_per_room": 8,
+        "private_toilet": 1,
+        "water_heater": 1,
+        "air_conditioner": 1
+    },
+    {
+        "building_name": "B7",
+        "total_floors": 4,
+        "rooms_per_floor": 9,
+        "rent_per_month": 600000,
+        "people_per_room": 6,
+        "private_toilet": 1,
+        "water_heater": 1,
+        "air_conditioner": 1
+    },
+    {
+        "building_name": "B10",
+        "total_floors": 4,
+        "rooms_per_floor": 9,
+        "rent_per_month": 350000,
+        "people_per_room": 12,
+        "private_toilet": 2,
+        "water_heater": 1,
+        "air_conditioner": 0
+    },
+    {
+        "building_name": "B9",
+        "total_floors": 4,
+        "rooms_per_floor": 9,
+        "rent_per_month": 450000,
+        "people_per_room": 8,
+        "private_toilet": 1,
+        "water_heater": 1,
+        "air_conditioner": 0
+    },
+    {
+        "building_name": "B3",
+        "total_floors": 4,
+        "rooms_per_floor": 9,
+        "rent_per_month": 450000,
+        "people_per_room": 10,
+        "private_toilet": 1,
+        "water_heater": 1,
+        "air_conditioner": 1
+    },
+    {
+        "building_name": "B5",
+        "total_floors": 4,
+        "rooms_per_floor": 9,
+        "rent_per_month": 500000,
+        "people_per_room": 10,
+        "private_toilet": 2,
+        "water_heater": 1,
+        "air_conditioner": 1
+    }
+]

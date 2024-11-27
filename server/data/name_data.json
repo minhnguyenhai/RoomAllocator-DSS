@@ -1,0 +1,31 @@
+{
+    "first_names": [
+        "Nguyễn", "Trần", "Lê", "Phạm", "Vũ", "Hoàng", "Hồ", "Đặng", "Bùi", "Dương", "Trương", "Đỗ",
+        "Lý", "Tô", "Ngô", "Đoàn", "Mai", "Võ", "Phan", "Trịnh", "Doãn", "Tạ", "Lương", "Đinh", "Hà",
+        "Lâm", "Cao", "Chu", "Tống", "Quách", "Tôn", "Khương", "Tăng", "Bành", "Thái", "Hứa", "Ninh",
+        "Khuất", "Đồng", "Lưu"
+    ],
+    "male_last_names": [
+        "Văn Hùng", "Hải Đăng", "Hoàng Tùng", "Nghĩa Gia Bình", "Quang Hieu", "Minh Tuấn", "Anh Duy", 
+        "Mạnh Cường", "Đức Khang", "Phước Tài", "Đoàn Lâm", "Vũ Quang", "Hải Nam", "Kiên An", "Đình Tú", 
+        "Bảo Nam", "Gia Hưng", "Trường Giang", "Khánh Lâm", "Vũ Đức", "Tiến Hòa", "Trí Quân", "Đại Dương", 
+        "Hùng Anh", "Thanh Tùng", "Văn Sơn", "Quốc Duy", "Khoa Minh", "Kiên Văn", "Đức Tuấn", "Hoàng Phúc",
+        "Duy Tuấn", "Trường Sơn", "Tuấn Kiệt", "Phúc Thịnh", "Hưng Lợi", "Quang Đạt", "Vinh Hoàng", 
+        "Thành Tâm", "Thanh Quang", "Công Sơn", "Lâm Quang", "Ngọc Thành", "Lộc Phát", "Trí Dũng", "Khang Đạt",
+        "Quốc Trung", "Hải Vũ", "Mạnh Cường", "Duy Khánh", "Khuê Minh", "Đức Anh", "Quang Đức", "Trung Kiên",
+        "Tùng Quân", "Hà Quang", "Ngọc Sơn", "Vinh Khoa", "Tài Đức", "Hữu Tài", "Sơn Hải", "Hồng Sơn", 
+        "Hải Thanh", "Quang Bình", "Thiện Đức", "Hữu Trí", "Vương Anh"
+    ],
+    "female_last_names": [
+        "Thị Linh Đan", "Thùy Tiên", "Phương Nhi", "Thanh Lan", "Bảo Ngọc", "Khánh Linh", "Linh Hương", 
+        "Thảo Nguyên", "Ánh Tuyết", "Thu Hà", "Hải Đan", "Lê Bích", "Trâm Anh", "Diễm My", "Mỹ Linh", 
+        "Quỳnh Chi", "Ngọc Hân", "Kim Ngân", "Phương Thảo", "Thảo Ly", "Linh Chi", "Tú Anh", "Như Quỳnh", 
+        "Thiên Kim", "Quỳnh Như", "Bích Thuỳ", "Thanh Mai", "Minh Thảo", "Ngọc Thảo", "Ánh Lan", "Hồng Nhung", 
+        "Thúy Anh", "Nhật Lan", "Diễm Kiều", "Minh Ngọc", "Trang Nhung", "Bảo Hà", "Thuý Vân", "Hải Yến", 
+        "Thùy Linh", "Lan Hương", "Bích Hạnh", "Tú Anh", "Thuỳ Dung", "Kim Liên", "Tú Quỳnh", "Thảo Quyên", 
+        "Phúc An", "Diễm Thanh", "Hạnh Dung", "Thiên Hương", "Bích Lệ", "Ngọc Tâm", "Quỳnh Duyên", "Thùy Trang", 
+        "Ánh Hồng", "Kim Chi", "Thiều Lan", "Hương Lan", "Khánh Hương", "Như Lan", "Hồng Quỳnh", "Thúy Vân", 
+        "Thiên Tiên", "Thanh Hòa", "Thu Lan", "Thu Hương", "Thủy Tiên", "Hải Linh", "Như Hoa", "Bảo Như", 
+        "Ngọc Dung", "Thiều Thư", "Tâm Hương", "Thúy Dung", "Thảo Linh"
+    ]
+}
