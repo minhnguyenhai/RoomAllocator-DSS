@@ -55,7 +55,7 @@ def generate_student_request():
         student_id=student_id,  
         name=full_name,
         gender=gender,
-        rent_per_month=fake.random_int(min=350000, max=600000),
+        rent_per_month=(fake.random_int(min=300, max=600))*1000,
         people_per_room=fake.random_int(min=6, max=12),
         private_toilet=fake.random_int(min=1, max=2),
         water_heater=fake.random_int(min=0, max=2),
@@ -68,14 +68,14 @@ def generate_student_request():
     )
 
 
-def insert_data_into_database(num_of_students=400):
+def insert_data_into_database(num_of_students=2500):
     app = create_app()
     with app.app_context():
         if Dormitory.query.first() is None:
             dormitories = [generate_dormitory(data) for data in dormitories_data]
             db.session.bulk_save_objects(dormitories)
             db.session.commit()
-            print(f"{len(dormitories)} records of dormitories inserted into database.")
+            print(f"{len(dormitories)} records of dormitories data inserted into database.")
         else:
             print("Data for dormitories already exist in the database.")
             
@@ -83,6 +83,6 @@ def insert_data_into_database(num_of_students=400):
             students = [generate_student_request() for _ in range(num_of_students)]
             db.session.bulk_save_objects(students)
             db.session.commit()
-            print(f"{num_of_students} records of student requests inserted into database.")
+            print(f"{num_of_students} records of student requests data inserted into database.")
         else:
             print("Data for student requests already exist in the database.")
