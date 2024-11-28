@@ -1,0 +1,82 @@
+[
+    {
+        "building_name": "B3",
+        "total_floors": 4,
+        "rooms_per_floor": 9,
+        "rent_per_month": 400000,
+        "people_per_room": 12,
+        "private_toilet": 2,
+        "water_heater": 1,
+        "air_conditioner": 2
+    },
+    {
+        "building_name": "B4",
+        "total_floors": 4,
+        "rooms_per_floor": 10,
+        "rent_per_month": 350000,
+        "people_per_room": 8,
+        "private_toilet": 1,
+        "water_heater": 0,
+        "air_conditioner": 0
+    },
+    {
+        "building_name": "B5",
+        "total_floors": 5,
+        "rooms_per_floor": 9,
+        "rent_per_month": 550000,
+        "people_per_room": 10,
+        "private_toilet": 2,
+        "water_heater": 2,
+        "air_conditioner": 1
+    },
+    {
+        "building_name": "B6",
+        "total_floors": 5,
+        "rooms_per_floor": 10,
+        "rent_per_month": 570000,
+        "people_per_room": 6,
+        "private_toilet": 1,
+        "water_heater": 1,
+        "air_conditioner": 1
+    },
+    {
+        "building_name": "B7",
+        "total_floors": 4,
+        "rooms_per_floor": 9,
+        "rent_per_month": 300000,
+        "people_per_room": 12,
+        "private_toilet": 2,
+        "water_heater": 0,
+        "air_conditioner": 1
+    },
+    {
+        "building_name": "B8",
+        "total_floors": 4,
+        "rooms_per_floor": 10,
+        "rent_per_month": 600000,
+        "people_per_room": 10,
+        "private_toilet": 1,
+        "water_heater": 2,
+        "air_conditioner": 2
+    },
+    {
+        "building_name": "B9",
+        "total_floors": 5,
+        "rooms_per_floor": 9,
+        "rent_per_month": 380000,
+        "people_per_room": 8,
+        "private_toilet": 2,
+        "water_heater": 1,
+        "air_conditioner": 0
+    },
+    {
+        "building_name": "B10",
+        "total_floors": 5,
+        "rooms_per_floor": 10,
+        "rent_per_month": 500000,
+        "people_per_room": 6,
+        "private_toilet": 1,
+        "water_heater": 0,
+        "air_conditioner": 2
+    }
+]
