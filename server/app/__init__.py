@@ -20,8 +20,6 @@ def create_app(config_class=Config):
     db.init_app(app)
     migrate.init_app(app, db)
     
-    from app.models.dormitory import Dormitory
-    from app.models.student_request import StudentRequest
-    from app.models.allocation import Allocation
+    from .models import student_request
     
     return app

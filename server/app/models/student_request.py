@@ -1,5 +1,5 @@
-from sqlalchemy import String, Integer, Boolean
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import String, Integer
+from sqlalchemy.orm import Mapped, mapped_column
 from app import db
 
 
@@ -9,15 +9,13 @@ class StudentRequest(db.Model):
 
     student_id: Mapped[str] = mapped_column(String(8), primary_key=True)
     name: Mapped[str] = mapped_column(String, nullable=False)
-    gender: Mapped[str] = mapped_column(String(6), nullable=False)
-    rent_per_month: Mapped[int] = mapped_column(Integer, nullable=False)
-    people_per_room: Mapped[int] = mapped_column(Integer, nullable=False)
-    private_toilet: Mapped[int] = mapped_column(Integer, nullable=False)
-    water_heater: Mapped[int] = mapped_column(Integer, nullable=False)
-    air_conditioner: Mapped[int] = mapped_column(Integer, nullable=False)
-    primary_study_time: Mapped[str] = mapped_column(String, nullable=False)
-    social_style: Mapped[str] = mapped_column(String, nullable=False)
-    silent_space_required: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    gender: Mapped[str] = mapped_column(String(5), nullable=False)
     bed_time_habit: Mapped[str] = mapped_column(String, nullable=False)
-    is_smoker: Mapped[bool] = mapped_column(Boolean, nullable=False)
-    allocation: Mapped["Allocation"] = relationship("Allocation", back_populates="student_request", uselist=False)
+    social_style: Mapped[str] = mapped_column(String, nullable=False)
+    religion: Mapped[str] = mapped_column(String, nullable=False)
+    academic_year: Mapped[int] = mapped_column(Integer, nullable=False)
+    major: Mapped[str] = mapped_column(String, nullable=False)
+    sports_passion: Mapped[str] = mapped_column(String, nullable=False)
+    music_passion: Mapped[str] = mapped_column(String, nullable=False)
+    gaming_passion: Mapped[str] = mapped_column(String, nullable=False)
+    average_monthly_spending: Mapped[int] = mapped_column(Integer, nullable=False)
