@@ -3,6 +3,13 @@ import random
 from faker import Faker
 from app import create_app, db
 from app.models.student_request import StudentRequest
+from app.models.dormitory import Dormitory
+
+
+def load_dormitories_from_json():
+    with open("./data/dormitory_data.json", "r", encoding="utf-8") as file:
+        data = json.load(file)
+    return data
 
 
 def load_names_from_json():
@@ -12,22 +19,33 @@ def load_names_from_json():
 
 
 faker = Faker()
+dormitories_info = load_dormitories_from_json()
 first_names, male_last_names, female_last_names = load_names_from_json()
 
 genders = ["Nam", "Nữ"]
-bed_time_habits = ["Sớm", "Bình thường", "Muộn"]
+bedtime_habits = ["21h", "21h30", "22h", "22h30", "23h", "23h30", "0h", "0h30", "1h", "1h30", "2h", "2h30", "3h"]
 social_stypes = ["Hướng nội", "Hướng ngoại", "Bình thường"]
-religions = ["Có", "Không"]
+religions = ["Không", "Kitô giáo", "Công giáo", "Tin lành", "Phật giáo", "Hòa Hảo", "Cao Đài", "Hồi giáo", "Khác"]
 academic_years = [66, 67, 68, 69]
-majors = ["CNTT&TT", "Cơ khí", "Điện - Điện tử", "Kinh tế", "Ngoại ngữ"]
-sports_passions = ["Có", "Không", "Bình thường"]
-music_passions = ["Có", "Không", "Bình thường"]
-gaming_passions = ["Có", "Không", "Bình thường"]
+majors = ["CNTT & TT", "Cơ khí", "Điện - Điện tử", "Kinh tế", "Hóa & KH sự sống", "Vật liệu", "Toán-Tin", "Vật lý Kỹ thuật", "Ngoại ngữ"]
+
+
+def generate_dormitories_data():
+    data = []
+    for dormitory in dormitories_info:
+        dormitory_data = Dormitory(
+            building_name=dormitory["building_name"],
+            total_rooms=dormitory["total_rooms"],
+            students_per_room=dormitory["students_per_room"]
+        )
+        data.append(dormitory_data)
+        
+    return data
 
 
 def generate_student_requests_data(num_of_records, seed=42):
     data = []
-    faker.seed_instance(42)
+    faker.seed_instance(seed)
     random.seed(seed)
     
     for _ in range(num_of_records):
@@ -57,15 +75,15 @@ def generate_student_requests_data(num_of_records, seed=42):
             student_id=student_id,  
             name=full_name,
             gender=gender,
-            bed_time_habit=random.choices(bed_time_habits, [0.15, 0.5, 0.35])[0],
-            social_style=random.choices(social_stypes, [0.25, 0.5, 0.25])[0],
-            religion=random.choices(religions, [0.2, 0.8])[0],
+            bedtime_habit=random.choices(bedtime_habits, [0.01, 0.01, 0.05, 0.05, 0.1, 0.15, 0.2, 0.15, 0.1, 0.05, 0.05, 0.04, 0.04])[0],
+            social_style=random.choices(social_stypes, [0.2, 0.5, 0.3])[0],
+            religion=random.choices(religions, [0.4, 0.15, 0.15, 0.15, 0.1, 0.02, 0.01, 0.01, 0.01])[0],
             academic_year=academic_year,
-            major=random.choices(majors, [0.25, 0.2, 0.2, 0.2, 0.15])[0],
-            sports_passion=random.choices(sports_passions, [0.5, 0.2, 0.3])[0],
-            music_passion=random.choices(music_passions, [0.4, 0.4, 0.2])[0],
-            gaming_passion=random.choices(gaming_passions, [0.6, 0.1, 0.3])[0],
-            average_monthly_spending=random.randint(1500, 5000)*1000
+            major=random.choices(majors, [0.2, 0.14, 0.19, 0.15, 0.14, 0.13, 0.05, 0.05, 0.05])[0],
+            sports_passion_score=random.randint(1, 10),
+            music_passion_score=random.randint(1, 10),
+            gaming_passion_score=random.randint(1, 10),
+            average_monthly_spending=random.randint(2000, 5000)*1000
         )
         data.append(student_request)
         
@@ -75,6 +93,14 @@ def generate_student_requests_data(num_of_records, seed=42):
 def insert_data_into_database(num_of_students=2000):
     app = create_app()
     with app.app_context():
+        if Dormitory.query.first() is None:
+            dormitories_data = generate_dormitories_data()
+            db.session.bulk_save_objects(dormitories_data)
+            db.session.commit()
+            print(f"{len(dormitories_data)} records of dormitories data inserted into database.")
+        else:
+            print("Data for dormitories already exist in the database.")
+            
         if StudentRequest.query.first() is None:
             student_requests_data = generate_student_requests_data(num_of_students)
             db.session.bulk_save_objects(student_requests_data)

@@ -1,0 +1,32 @@
+[
+    {
+        "building_name": "B3",
+        "total_rooms": 36,
+        "students_per_room": 12
+    },
+    {
+        "building_name": "B4",
+        "total_rooms": 40,
+        "students_per_room": 10
+    },
+    {
+        "building_name": "B5",
+        "total_rooms": 45,
+        "students_per_room": 8
+    },
+    {
+        "building_name": "B8",
+        "total_rooms": 50,
+        "students_per_room": 6
+    },
+    {
+        "building_name": "B9",
+        "total_rooms": 40,
+        "students_per_room": 10
+    },
+    {
+        "building_name": "B10",
+        "total_rooms": 50,
+        "students_per_room": 8
+    }
+]
