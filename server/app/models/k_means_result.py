@@ -10,3 +10,7 @@ class KMeansResult(db.Model):
     
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     result: Mapped[dict] = mapped_column(JSON, nullable=False)
+    
+    
+    def to_dict(self):
+        return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
