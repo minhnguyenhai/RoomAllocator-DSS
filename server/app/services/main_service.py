@@ -1,6 +1,6 @@
 import logging
 from .. import db
-from ..models.dormitory import Dormitory
+from ..models.room import Room
 from ..models.student_request import StudentRequest
 from ..models.k_means_result import KMeansResult
 
@@ -10,9 +10,9 @@ class MainService:
         pass
     
     
-    def get_all_dormitories_data(self):
-        dormitories = Dormitory.query.all()
-        return [dormitory.to_dict() for dormitory in dormitories]
+    def get_all_rooms_data(self):
+        rooms = Room.query.all()
+        return [room.to_dict() for room in rooms]
     
     
     def get_all_student_requests_data(self):

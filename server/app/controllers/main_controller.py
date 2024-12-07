@@ -4,14 +4,14 @@ from ..services.main_service import MainService
 
 
 @main_api.route("/", methods=["GET"])
-def get_all_dormitories_and_student_requests():
+def get_all_rooms_and_student_requests():
     main_service = MainService()
-    dormitories_data = main_service.get_all_dormitories_data()
+    rooms_data = main_service.get_all_rooms_data()
     student_requests_data = main_service.get_all_student_requests_data()
     return jsonify({
         "success": True,
-        "message": "Successfully fetched all dormitories and student requests.",
-        "dormitories": dormitories_data,
+        "message": "Successfully fetched all rooms and student requests.",
+        "rooms": rooms_data,
         "student_requests": student_requests_data
     }), 200
     
@@ -19,9 +19,9 @@ def get_all_dormitories_and_student_requests():
 @main_api.route("/k-means-result", methods=["GET"])
 def get_k_means_result():
     main_service = MainService()
-    dormitories_data = main_service.get_all_dormitories_data()
+    rooms_data = main_service.get_all_rooms_data()
     student_requests_data = main_service.get_all_student_requests_data()
-    # result = k_means_function(dormitories_data, student_requests_data)
+    # result = k_means_function(rooms_data, student_requests_data)
     # k_means_result = main_service.save_k_means_result(result)
     return jsonify({
         "success": True,

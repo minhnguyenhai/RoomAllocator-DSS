@@ -3,11 +3,11 @@ import random
 from faker import Faker
 from app import create_app, db
 from app.models.student_request import StudentRequest
-from app.models.dormitory import Dormitory
+from app.models.room import Room
 
 
-def load_dormitories_from_json():
-    with open("./data/dormitory_data.json", "r", encoding="utf-8") as file:
+def load_buildings_from_json():
+    with open("./data/building_data.json", "r", encoding="utf-8") as file:
         data = json.load(file)
     return data
 
@@ -19,7 +19,7 @@ def load_names_from_json():
 
 
 faker = Faker()
-dormitories_info = load_dormitories_from_json()
+buildings_info = load_buildings_from_json()
 first_names, male_last_names, female_last_names = load_names_from_json()
 
 genders = ["Nam", "Nữ"]
@@ -31,15 +31,18 @@ majors = ["CNTT & TT", "Cơ khí", "Điện - Điện tử", "Kinh tế", "Hóa 
 is_smokers = ["Có", "Không"]
 
 
-def generate_dormitories_data():
+def generate_rooms_data():
     data = []
-    for dormitory in dormitories_info:
-        dormitory_data = Dormitory(
-            building_name=dormitory["building_name"],
-            total_rooms=dormitory["total_rooms"],
-            students_per_room=dormitory["students_per_room"]
-        )
-        data.append(dormitory_data)
+    for building in buildings_info:
+        for floor in range(1, building["total_floors"]+1):
+            for room_number in range(1, building["rooms_per_floor"]+1):
+                room_name = f"{building['building_name']}-{floor}{room_number:02d}"
+                room = Room(
+                    building_name=building["building_name"],
+                    room_name=room_name,
+                    capacity=building["students_per_room"]
+                )
+                data.append(room)
         
     return data
 
@@ -95,13 +98,13 @@ def generate_student_requests_data(num_of_records, seed=42):
 def insert_data_into_database(num_of_students=2000):
     app = create_app()
     with app.app_context():
-        if Dormitory.query.first() is None:
-            dormitories_data = generate_dormitories_data()
-            db.session.bulk_save_objects(dormitories_data)
+        if Room.query.first() is None:
+            rooms_data = generate_rooms_data()
+            db.session.bulk_save_objects(rooms_data)
             db.session.commit()
-            print(f"{len(dormitories_data)} records of dormitories data inserted into database.")
+            print(f"{len(rooms_data)} records of rooms data inserted into database.")
         else:
-            print("Data for dormitories already exist in the database.")
+            print("Data for rooms already exist in the database.")
             
         if StudentRequest.query.first() is None:
             student_requests_data = generate_student_requests_data(num_of_students)

@@ -21,7 +21,7 @@ def create_app(config_class=Config):
     db.init_app(app)
     migrate.init_app(app, db)
     
-    from .models import dormitory, student_request, k_means_result
+    from .models import room, student_request, k_means_result
     
     from .controllers import main_api
     app.register_blueprint(main_api, url_prefix="/api")
