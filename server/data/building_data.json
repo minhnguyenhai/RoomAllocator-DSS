@@ -2,37 +2,31 @@
     {
         "building_name": "B3",
         "total_floors": 4,
-        "rooms_per_floor": 9,
-        "students_per_room": 12
+        "rooms_per_floor": 9
     },
     {
         "building_name": "B4",
         "total_floors": 4,
-        "rooms_per_floor": 10,
-        "students_per_room": 10
+        "rooms_per_floor": 10
     },
     {
         "building_name": "B5",
         "total_floors": 5,
-        "rooms_per_floor": 9,
-        "students_per_room": 8
+        "rooms_per_floor": 9
     },
     {
         "building_name": "B8",
         "total_floors": 5,
-        "rooms_per_floor": 10,
-        "students_per_room": 6
+        "rooms_per_floor": 10
     },
     {
         "building_name": "B9",
         "total_floors": 4,
-        "rooms_per_floor": 10,
-        "students_per_room": 10
+        "rooms_per_floor": 10
     },
     {
         "building_name": "B10",
         "total_floors": 5,
-        "rooms_per_floor": 10,
-        "students_per_room": 8
+        "rooms_per_floor": 10
     }
 ]

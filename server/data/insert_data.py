@@ -31,8 +31,9 @@ majors = ["CNTT & TT", "Cơ khí", "Điện - Điện tử", "Kinh tế", "Hóa 
 is_smokers = ["Có", "Không"]
 
 
-def generate_rooms_data():
+def generate_rooms_data(seed=42):
     data = []
+    random.seed(seed)
     for building in buildings_info:
         for floor in range(1, building["total_floors"]+1):
             for room_number in range(1, building["rooms_per_floor"]+1):
@@ -40,7 +41,7 @@ def generate_rooms_data():
                 room = Room(
                     building_name=building["building_name"],
                     room_name=room_name,
-                    capacity=building["students_per_room"]
+                    capacity=random.choice([6, 8, 10, 12]),
                 )
                 data.append(room)
         
