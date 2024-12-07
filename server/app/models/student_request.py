@@ -19,6 +19,7 @@ class StudentRequest(db.Model):
     music_passion_score: Mapped[int] = mapped_column(Integer, nullable=False)
     gaming_passion_score: Mapped[int] = mapped_column(Integer, nullable=False)
     average_monthly_spending: Mapped[int] = mapped_column(Integer, nullable=False)
+    is_smoker: Mapped[str] = mapped_column(String, nullable=False)
     
     
     def to_dict(self):

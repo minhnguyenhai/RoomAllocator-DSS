@@ -28,6 +28,7 @@ social_stypes = ["Hướng nội", "Hướng ngoại", "Bình thường"]
 religions = ["Không", "Kitô giáo", "Công giáo", "Tin lành", "Phật giáo", "Hòa Hảo", "Cao Đài", "Hồi giáo", "Khác"]
 academic_years = [66, 67, 68, 69]
 majors = ["CNTT & TT", "Cơ khí", "Điện - Điện tử", "Kinh tế", "Hóa & KH sự sống", "Vật liệu", "Toán-Tin", "Vật lý Kỹ thuật", "Ngoại ngữ"]
+is_smokers = ["Có", "Không"]
 
 
 def generate_dormitories_data():
@@ -83,7 +84,8 @@ def generate_student_requests_data(num_of_records, seed=42):
             sports_passion_score=random.randint(1, 10),
             music_passion_score=random.randint(1, 10),
             gaming_passion_score=random.randint(1, 10),
-            average_monthly_spending=random.randint(2000, 5000)*1000
+            average_monthly_spending=random.randint(2000, 5000)*1000,
+            is_smoker=random.choices(is_smokers, [0.25, 0.75])[0]
         )
         data.append(student_request)
         
