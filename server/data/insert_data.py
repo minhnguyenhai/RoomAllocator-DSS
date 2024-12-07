@@ -33,6 +33,7 @@ is_smokers = ["Có", "Không"]
 
 def generate_rooms_data(seed=42):
     data = []
+    total_capacity = 0
     random.seed(seed)
     for building in buildings_info:
         for floor in range(1, building["total_floors"]+1):
@@ -44,8 +45,9 @@ def generate_rooms_data(seed=42):
                     capacity=random.choice([6, 8, 10, 12]),
                 )
                 data.append(room)
-        
-    return data
+                total_capacity += room.capacity
+    
+    return data, total_capacity
 
 
 def generate_student_requests_data(num_of_records, seed=42):
@@ -100,17 +102,17 @@ def insert_data_into_database(num_of_students=2000):
     app = create_app()
     with app.app_context():
         if Room.query.first() is None:
-            rooms_data = generate_rooms_data()
+            rooms_data, total_capacity = generate_rooms_data()
             db.session.bulk_save_objects(rooms_data)
             db.session.commit()
-            print(f"{len(rooms_data)} records of rooms data inserted into database.")
+            print(f"{len(rooms_data)} records of rooms data inserted into the database with a total capacity of {total_capacity} beds.")
         else:
-            print("Data for rooms already exist in the database.")
+            print("261 records of rooms data already exist in the database with a total capacity of 2280 beds.")
             
         if StudentRequest.query.first() is None:
             student_requests_data = generate_student_requests_data(num_of_students)
             db.session.bulk_save_objects(student_requests_data)
             db.session.commit()
-            print(f"{num_of_students} records of student requests data inserted into database.")
+            print(f"{num_of_students} records of student requests data inserted into the database.")
         else:
-            print("Data for student requests already exist in the database.")
+            print(f"{num_of_students} records of student requests data already exist in the database.")
