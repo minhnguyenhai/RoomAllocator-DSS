@@ -28,9 +28,8 @@ def get_k_means_result():
     print(data_frame)
     vectorized_data = vectorize_students(data_frame)
     print(vectorized_data)
-    discrete_columns = [6,7,8]
-    weights = [1, 1, 1, 1, 1, 1, 1, 1, 1]
-    result = kmeans(vectorized_data, 261, discrete_columns, weights, continuous_features=list(range(6)), max_iter = 1, random_state=True)
+    weights = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    result = kmeans(data_frame, 100, weights, max_iter = 100)
     print(result)
     return jsonify({
         "success": True,
