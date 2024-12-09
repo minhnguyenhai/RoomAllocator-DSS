@@ -9,10 +9,10 @@ import pandas as pd
 def get_all_rooms_and_student_requests():
     main_service = MainService()
     rooms_data = main_service.get_all_rooms_data()
-    student_requests_data = main_service.get_all_student_requests_data()
+    student_requests_data = main_service.get_all_male_student_requests_data()
     return jsonify({
         "success": True,
-        "message": "Successfully fetched all rooms and student requests.",
+        "message": "Successfully fetched all rooms and male student requests.",
         "rooms": rooms_data,
         "student_requests": student_requests_data
     }), 200
@@ -26,11 +26,10 @@ def get_k_means_result():
     print(2)
     data_frame = pd.DataFrame(student_requests_data)
     print(data_frame)
-    vectorized_data = vectorize_students(data_frame)
-    print(vectorized_data)
-    discrete_columns = [6,7,8]
-    weights = [1, 1, 1, 1, 1, 1, 1, 1, 1]
-    result = kmeans(vectorized_data, 261, discrete_columns, weights, continuous_features=list(range(6)), max_iter = 1, random_state=True)
+    discrete_columns = [7,8,9]
+    weights = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    continuous_features=list(range(7))
+    result = kmeans(data_frame, 261, discrete_columns, weights, continuous_features, max_iter = 50)
     print(result)
     return jsonify({
         "success": True,

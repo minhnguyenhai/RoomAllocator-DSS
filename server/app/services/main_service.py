@@ -1,7 +1,7 @@
 import logging
 from .. import db
 from ..models.room import Room
-from ..models.student_request import StudentRequest
+from ..models.male_student_request import MaleStudentRequest
 from ..models.k_means_result import KMeansResult
 
 
@@ -15,8 +15,8 @@ class MainService:
         return [room.to_dict() for room in rooms]
     
     
-    def get_all_student_requests_data(self):
-        student_requests = StudentRequest.query.all()
+    def get_all_male_student_requests_data(self):
+        student_requests = MaleStudentRequest.query.all()
         return [student_request.to_dict() for student_request in student_requests]
     
     
