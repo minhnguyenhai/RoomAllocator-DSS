@@ -1,6 +1,9 @@
+from ..services.main_service import MainService
+
 # Hàm vector hóa 1 sv dựa vào id
 def vectorize_student_by_id(id):
-    student_info = databasequery(id)
+    mainservice = MainService()
+    student_info = mainservice.get_male_student_request_by_id(id)
     return vectorize_student(student_info)
 
 
@@ -21,13 +24,13 @@ def vectorize_student(student):
     music_passion_mapping = {"Ghét": 0, "Không thích": 0.25, "Bình thường": 0.5, "Thích": 0.75, "Rất thích": 1}
     gaming_passion_mapping = {"Ghét": 0, "Không thích": 0.25, "Bình thường": 0.5, "Thích": 0.75, "Rất thích": 1}
     religion_mapping = {
-        "Không": 0, "Kitô giáo": 0.125, "Công giáo": 0.25, "Tin lành": 0.375, "Phật giáo": 0.5,
-        "Hòa Hảo": 0.625, "Cao Đài": 0.75, "Hồi giáo": 0.875, "Khác": 1
+        "Không": 0, "Kitô giáo": 1, "Công giáo": 2, "Tin lành": 3, "Phật giáo": 4,
+        "Hòa Hảo": 5, "Cao Đài": 6, "Hồi giáo": 7, "Khác": 8
     }
     major_mapping = {
-        "CNTT & TT": 0, "Cơ khí": 0.125, "Điện - Điện tử": 0.25, "Kinh tế": 0.375,
-        "Hóa & KH sự sống": 0.5, "Vật liệu": 0.625, "Toán-Tin": 0.75,
-        "Vật lý Kỹ thuật": 0.875, "Ngoại ngữ": 1
+        "CNTT & TT": 0, "Cơ khí": 1, "Điện - Điện tử": 2, "Kinh tế": 3,
+        "Hóa & KH sự sống": 4, "Vật liệu": 5, "Toán-Tin": 6,
+        "Vật lý Kỹ thuật": 7, "Ngoại ngữ": 8
     }
     
     is_smoker_mapping = {"Không": 0, "Có": 1}
@@ -36,18 +39,18 @@ def vectorize_student(student):
     bedtime_habit = bedtime_mapping.get(student.get("bedtime_habit", "21h"), 0)
     social_style = social_style_mapping.get(student.get("social_style", "Bình thường"), 0.5)
     academic_year = academic_year_mapping.get(student.get("academic_year", 66), 0)
-    sports_passion_score = sports_passion_mapping.get(student.get("sports_passion_score", "Bình thường"), 0.5)
-    music_passion_score = music_passion_mapping.get(student.get("music_passion_score", "Bình thường"), 0.5)
-    gaming_passion_score = gaming_passion_mapping.get(student.get("gaming_passion_score", "Bình thường"), 0.5)
-    average_monthly_spending = (student.get("average_monthly_spending", 2000) - 2000) / 3000
+    sports_passion = sports_passion_mapping.get(student.get("sports_passion", "Bình thường"), 0.5)
+    music_passion = music_passion_mapping.get(student.get("music_passion", "Bình thường"), 0.5)
+    gaming_passion = gaming_passion_mapping.get(student.get("gaming_passion", "Bình thường"), 0.5)
+    average_monthly_spending = (float(student.get("average_monthly_spending", 2000000)) - 2000000) / 3000000
     religion = religion_mapping.get(student.get("religion", "Không"), 0)
     major = major_mapping.get(student.get("major", "CNTT & TT"), 0)
     is_smoker = is_smoker_mapping.get(student.get("is_smoker", "Không"), 0)
     
     # Trả về vector
     return [
-        bedtime_habit, social_style, academic_year, sports_passion_score,
-        music_passion_score, gaming_passion_score, average_monthly_spending,
+        bedtime_habit, social_style, academic_year, sports_passion,
+        music_passion, gaming_passion, average_monthly_spending,
         religion, major, is_smoker
     ]
 

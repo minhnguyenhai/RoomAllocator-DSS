@@ -4,12 +4,11 @@ from sklearn.preprocessing import MinMaxScaler, LabelEncoder
 
 # Hàm vector hóa sinh viên
 def vectorize_students(data_origin):
-
     # Tạo bản sao của dữ liệu để không ảnh hưởng đến dữ liệu gốc
     data = data_origin.copy()
     
-    continuous_features = ["bedtime_habit", "social_style", "academic_year", "sports_passion_score", 
-                           "music_passion_score", "gaming_passion_score", 
+    continuous_features = ["bedtime_habit", "social_style", "academic_year", "sports_passion", 
+                           "music_passion", "gaming_passion", 
                            "average_monthly_spending"]
     discrete_features = ["religion", "major", "is_smoker"]
 
@@ -19,14 +18,18 @@ def vectorize_students(data_origin):
         "23h30": 11.5, "0h": 12.0, "0h30": 12.5, "1h": 13.0, "1h30": 13.5,
         "2h": 14.0, "2h30": 14.5, "3h": 15.0
     }
-
-    # Áp dụng mapping cho 'bedtime_habit'
     data["bedtime_habit"] = data["bedtime_habit"].map(bedtime_mapping)
 
     # Mapping cho 'social_style' từ chuỗi sang số
     social_style_mapping = {"Hướng nội": 1, "Bình thường": 2, "Hướng ngoại": 3}
     data["social_style"] = data["social_style"].map(social_style_mapping)
 
+    #Mapping cho passion
+    passion_mapping = {"Ghét": 0, "Không thích": 1, "Bình thường": 2, "Thích": 3, "Rất thích": 4}
+    data["sports_passion"] = data["sports_passion"].map(passion_mapping)
+    data["music_passion"] = data["music_passion"].map(passion_mapping)
+    data["gaming_passion"] = data["gaming_passion"].map(passion_mapping)
+    
     # Chuẩn hóa các thuộc tính liên tục
     scaler = MinMaxScaler()
     continuous_data = data[continuous_features].values  # Lấy dữ liệu thuộc tính liên tục từ DataFrame
