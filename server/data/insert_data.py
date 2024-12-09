@@ -96,6 +96,6 @@ def insert_data_into_database(num_of_rooms):
             db.session.bulk_save_objects(student_requests_data)
             db.session.commit()
             print(f"{num_of_rooms} records of rooms data inserted into the database with a total capacity of {total_capacity} beds.")
-            print(f"{total_capacity} records of student requests data already exist in the database.")
+            print(f"{total_capacity} records of student requests data inserted into the database.")
         else:
             print(f"Data already exists in the database with {num_of_rooms} rooms.")
