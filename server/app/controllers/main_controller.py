@@ -4,6 +4,8 @@ from ..services.main_service import MainService
 from ..k_means_handler.k_means_handler import vectorize_students, kmeans
 from ..k_means_handler.vectorize_student import vectorize_student_by_id
 from ..k_means_handler.distance import euclidean_distance_with_weights
+from ..Hung.weight import get_weight
+from ..Hung.solver import solver
 import pandas as pd
 
 
@@ -25,9 +27,7 @@ def get_k_means_result():
     main_service = MainService()
     male_student_requests_data = main_service.get_all_male_student_requests_data()
     data_frame = pd.DataFrame(male_student_requests_data)
-    weights = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-    k=100
-    result = kmeans(data_frame, k , weights, max_iter = 100)
+    result = kmeans(data_frame, len(main_service.get_all_rooms_data()), get_weight(), max_iter = 100)
     k_means_result = main_service.save_k_means_result(result)
     return jsonify({
         "success": True,
@@ -36,17 +36,10 @@ def get_k_means_result():
         "result": result
     }), 200
     
-    
-@main_api.route("/allocation-result", methods=["POST"])
+@main_api.route("/allocation-result", methods=["GET"])
 def get_allocation_result():
-    data = request.get_json()
-    if not data:
-        return jsonify({
-            "success": False,
-            "message": "Invalid JSON data."
-        }), 400
-        
-    k_means_result_id = data.get("id")
+    k_means_result_id = request.args.get("id", None)
+    
     if not k_means_result_id:
         return jsonify({
             "success": False,
@@ -61,9 +54,9 @@ def get_allocation_result():
             "message": "K-means result not found with the provided ID."
         }), 404
         
-    # allocation_result = allocation_function(k_means_result)
+    allocation_result = solver(k_means_result)
     return jsonify({
         "success": True,
         "message": "Successfully fetched allocation result.",
-        # "result": allocation_result
+        "result": allocation_result
     }), 200

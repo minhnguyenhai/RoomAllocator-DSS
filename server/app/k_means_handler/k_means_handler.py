@@ -230,8 +230,11 @@ def kmeans(datafr, k, weights, max_iter=100):
 
     # Thay thế chỉ số trong clusters bằng student_id
     clusters_with_student_ids = []
+    kkk = 0
     for cluster in clusters:
         cluster_student_ids = datafr.loc[cluster, 'student_id'].tolist()
         clusters_with_student_ids.append(cluster_student_ids)
+        print(kkk, cluster_student_ids)
+        kkk += 1
 
     return clusters_with_student_ids, mean_squared_distances
