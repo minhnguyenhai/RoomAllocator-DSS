@@ -9,10 +9,10 @@ import pandas as pd
 def get_all_rooms_and_student_requests():
     main_service = MainService()
     rooms_data = main_service.get_all_rooms_data()
-    student_requests_data = main_service.get_all_student_requests_data()
+    student_requests_data = main_service.get_all_male_student_requests_data()
     return jsonify({
         "success": True,
-        "message": "Successfully fetched all rooms and student requests.",
+        "message": "Successfully fetched all rooms and male student requests.",
         "rooms": rooms_data,
         "student_requests": student_requests_data
     }), 200

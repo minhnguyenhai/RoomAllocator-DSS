@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import pandas as pd
 from sklearn.preprocessing import MinMaxScaler, LabelEncoder
 
 # Hàm vector hóa sinh viên
@@ -9,31 +10,41 @@ def vectorize_students(data):
                            "average_monthly_spending"]
     discrete_features = ["religion", "major", "is_smoker"]
 
+    discrete_features = ["religion", "major", "is_smoker"]
+
     # Mapping cho 'bedtime_habit' (chuyển thời gian từ '9h' đến '3h' thành dạng số thập phân)
     bedtime_mapping = {
+        "21h": 9.0, "21h30": 9.5, "22h": 10.0, "22h30": 10.5, "23h": 11.0,
+        "23h30": 11.5, "0h": 12.0, "0h30": 12.5, "1h": 13.0, "1h30": 13.5,
         "21h": 9.0, "21h30": 9.5, "22h": 10.0, "22h30": 10.5, "23h": 11.0,
         "23h30": 11.5, "0h": 12.0, "0h30": 12.5, "1h": 13.0, "1h30": 13.5,
         "2h": 14.0, "2h30": 14.5, "3h": 15.0
     }
 
+
     # Áp dụng mapping cho 'bedtime_habit'
     data["bedtime_habit"] = data["bedtime_habit"].map(bedtime_mapping)
+
 
     # Mapping cho 'social_style' từ chuỗi sang số
     social_style_mapping = {"Hướng nội": 1, "Bình thường": 2, "Hướng ngoại": 3}
     data["social_style"] = data["social_style"].map(social_style_mapping)
+
 
     # Chuẩn hóa các thuộc tính liên tục
     scaler = MinMaxScaler()
     continuous_data = data[continuous_features].values  # Lấy dữ liệu thuộc tính liên tục từ DataFrame
     normalized_continuous_data = scaler.fit_transform(continuous_data)  # Chuẩn hóa theo MinMaxScaler
 
+
     # Mã hóa các thuộc tính rời rạc
     label_encoder = LabelEncoder()
+
 
     # Mã hóa từng thuộc tính rời rạc
     encoded_discrete_data = np.array([label_encoder.fit_transform(data[feature])
                                       for feature in discrete_features]).T
+
 
     # Trả về kết quả kết hợp dữ liệu đã chuẩn hóa và đã mã hóa
     return np.hstack([normalized_continuous_data, encoded_discrete_data])
@@ -51,6 +62,7 @@ def euclidean_distance_to_centroid(point, centroid, discrete_columns, weights):
     Returns:
         float: Khoảng cách đã tính toán.
     """
+    """
     # Tính toán khoảng cách
     distance = 0
     for i in range(len(point)):
@@ -61,7 +73,45 @@ def euclidean_distance_to_centroid(point, centroid, discrete_columns, weights):
         else:  # Nếu là thuộc tính liên tục
             distance += weights[i] * ((point[i] - centroid[i]) ** 2)  # Khoảng cách Euclidean có trọng số
 
+
     return np.sqrt(distance)
+
+def assign_centroids(data, clusters, continuous_features, discrete_columns):
+    """
+    Tính lại centroids cho từng cụm dựa trên dữ liệu.
+
+    Args:
+        data (np.array): Dữ liệu đã vector hóa.
+        clusters (list): Danh sách các chỉ số dữ liệu trong từng cụm.
+        continuous_features (list): Danh sách các chỉ số thuộc tính liên tục.
+        discrete_columns (list): Danh sách các chỉ số thuộc tính rời rạc.
+
+    Returns:
+        list: Danh sách centroids mới.
+    """
+    new_centroids = []
+    for cluster in clusters:
+        if len(cluster) == 0:
+            continue
+
+        cluster_data = data[cluster]
+        new_centroid = []
+
+        # Thuộc tính liên tục: Tính trung bình
+        for i in continuous_features:
+            new_centroid.append(np.mean(cluster_data[:, i]))
+
+        # Thuộc tính rời rạc: Lưu tỷ lệ
+        for i in discrete_columns:
+            values, counts = np.unique(cluster_data[:, i], return_counts=True)
+            max_value = int(np.max(data[:, i]))
+            proportions = np.zeros(max_value + 1)
+            for j, value in enumerate(values):
+                proportions[int(value)] = counts[j] / len(cluster_data) 
+            new_centroid.append(proportions)
+
+        new_centroids.append(new_centroid)
+    return new_centroids
 
 def assign_centroids(data, clusters, continuous_features, discrete_columns):
     """
@@ -138,6 +188,7 @@ def kmeans(datafr, k, weights, max_iter=100):
 
     unchanged_iterations = 0
 
+
     for iteration in range(max_iter):
         clusters = [[] for _ in range(k)]
 
@@ -149,6 +200,7 @@ def kmeans(datafr, k, weights, max_iter=100):
             ]
             cluster_idx = np.argmin(distances)
             clusters[cluster_idx].append(idx)
+
 
         # Kiểm tra và xử lý cụm trống
         for i in range(k):
@@ -167,13 +219,24 @@ def kmeans(datafr, k, weights, max_iter=100):
                         centroid.append(new_centroid_data[j])
                     elif j in discrete_columns:
                         max_value = int(np.max(data[:, j]))
+                new_centroid_data = data[new_centroid_idx].tolist()
+                centroid = []
+                for j in range(n_features):
+                    if j in continuous_features:
+                        centroid.append(new_centroid_data[j])
+                    elif j in discrete_columns:
+                        max_value = int(np.max(data[:, j]))
                         proportions = np.zeros(max_value + 1)
+                        proportions[int(new_centroid_data[j])] = 1.0
+                        centroid.append(proportions)
+                centroids[i] = centroid
                         proportions[int(new_centroid_data[j])] = 1.0
                         centroid.append(proportions)
                 centroids[i] = centroid
                 clusters[i] = [new_centroid_idx]
 
         # Bước 2: Tính lại centroid
+        new_centroids = assign_centroids(data, clusters, continuous_features, discrete_columns)
         new_centroids = assign_centroids(data, clusters, continuous_features, discrete_columns)
 
         # Kiểm tra điều kiện dừng
@@ -185,11 +248,21 @@ def kmeans(datafr, k, weights, max_iter=100):
             if not compare_centroids(centroids[i], new_centroids[i]):
                 break
         if ui == k:
+        ui = 0
+        for i in range(k):
+            ui+=1
+            if len(clusters[i]) == 0:
+                continue
+            if not compare_centroids(centroids[i], new_centroids[i]):
+                break
+        if ui == k:
             unchanged_iterations += 1
+            if unchanged_iterations >= 3:
             if unchanged_iterations >= 3:
                 break
         else:
             unchanged_iterations = 0
+
 
         centroids = new_centroids
 
