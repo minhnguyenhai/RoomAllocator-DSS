@@ -10,6 +10,13 @@ class MainService:
         pass
     
     
+    def get_male_student_request_by_id(self, student_id):
+        student_request = MaleStudentRequest.query.get(student_id)
+        if not student_request:
+            return None
+        return student_request.to_dict()
+    
+    
     def get_all_rooms_data(self):
         rooms = Room.query.all()
         return [room.to_dict() for room in rooms]
