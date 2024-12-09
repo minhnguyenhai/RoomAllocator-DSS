@@ -86,21 +86,16 @@ def generate_student_requests_data(num_of_records, seed=42):
     return data
 
 
-def insert_data_into_database(num_of_rooms, num_of_students):
+def insert_data_into_database(num_of_rooms):
     app = create_app()
     with app.app_context():
         if Room.query.first() is None:
             rooms_data, total_capacity = generate_rooms_data(num_of_rooms)
+            student_requests_data = generate_student_requests_data(total_capacity)
             db.session.bulk_save_objects(rooms_data)
-            db.session.commit()
-            print(f"{num_of_rooms} records of rooms data inserted into the database with a total capacity of {total_capacity} beds.")
-        else:
-            print(f"{num_of_rooms} records of rooms data already exist in the database with a total capacity of 874 beds.")
-            
-        if MaleStudentRequest.query.first() is None:
-            student_requests_data = generate_student_requests_data(num_of_students)
             db.session.bulk_save_objects(student_requests_data)
             db.session.commit()
-            print(f"{num_of_students} records of student requests data inserted into the database.")
+            print(f"{num_of_rooms} records of rooms data inserted into the database with a total capacity of {total_capacity} beds.")
+            print(f"{total_capacity} records of student requests data already exist in the database.")
         else:
-            print(f"{num_of_students} records of student requests data already exist in the database.")
+            print(f"Data already exists in the database with {num_of_rooms} rooms.")
