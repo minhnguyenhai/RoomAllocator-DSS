@@ -26,10 +26,10 @@ def get_k_means_result():
     print(2)
     data_frame = pd.DataFrame(student_requests_data)
     print(data_frame)
-    discrete_columns = [7,8,9]
+    vectorized_data = vectorize_students(data_frame)
+    print(vectorized_data)
     weights = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-    continuous_features=list(range(7))
-    result = kmeans(data_frame, 261, discrete_columns, weights, continuous_features, max_iter = 50)
+    result = kmeans(data_frame, 100, weights, max_iter = 100)
     print(result)
     return jsonify({
         "success": True,

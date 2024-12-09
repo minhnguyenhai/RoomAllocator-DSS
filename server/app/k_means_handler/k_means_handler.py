@@ -5,7 +5,7 @@ from sklearn.preprocessing import MinMaxScaler, LabelEncoder
 # Hàm vector hóa sinh viên
 def vectorize_students(data_origin):
 
-    # Tạo bản sao của DataFrame để không ảnh hưởng đến dữ liệu gốc
+    # Tạo bản sao của dữ liệu để không ảnh hưởng đến dữ liệu gốc
     data = data_origin.copy()
     
     continuous_features = ["bedtime_habit", "social_style", "academic_year", "sports_passion_score", 
@@ -41,30 +41,6 @@ def vectorize_students(data_origin):
 
     # Trả về kết quả kết hợp dữ liệu đã chuẩn hóa và đã mã hóa
     return np.hstack([normalized_continuous_data, encoded_discrete_data])
-
-# Hàm tính khoảng cách Euclidean
-def euclidean_distance_with_weights(a, b, discrete_columns, weights):
-    """
-    Tính khoảng cách Euclidean có áp dụng trọng số.
-
-    Args:
-        a (list): Vector đầu tiên (dữ liệu của sinh viên thứ nhất).
-        b (list): Vector thứ hai (dữ liệu của sinh viên thứ hai).
-        discrete_columns (list): Danh sách các chỉ số (index) của các thuộc tính rời rạc.
-        weights (list): Trọng số tương ứng cho mỗi thuộc tính (cùng độ dài với `a` và `b`).
-
-    Returns:
-        float: Khoảng cách Euclidean có áp dụng trọng số.
-    """
-    distance = 0
-    for i in range(len(a)):
-        if i in discrete_columns:
-            # Áp dụng trọng số cho thuộc tính rời rạc
-            distance += weights[i] * ((a[i] != b[i])**2)
-        else:
-            # Áp dụng trọng số cho thuộc tính liên tục
-            distance += weights[i] * ((a[i] - b[i]) ** 2)
-    return np.sqrt(distance)
 
 def euclidean_distance_to_centroid(point, centroid, discrete_columns, weights):
     """
@@ -141,12 +117,14 @@ def compare_centroids(centroid1, centroid2):
                 return False
     return True
 
-def kmeans(datafr, k, discrete_columns, weights, continuous_features, max_iter=2000):
+def kmeans(datafr, k, weights, max_iter=100):
     # print("datafr", datafr)
     data = vectorize_students(datafr)
     # print("data", data)
     n_samples, n_features = data.shape
 
+    discrete_columns = [7, 8, 9]
+    continuous_features = [0, 1, 2, 3, 4, 5, 6]
     # Khởi tạo centroid ban đầu ngẫu nhiên
     centroids = []
     for _ in range(k):
@@ -218,21 +196,6 @@ def kmeans(datafr, k, discrete_columns, weights, continuous_features, max_iter=2
             unchanged_iterations = 0
 
         centroids = new_centroids
-
-    # wcss = sum(
-    #     sum(
-    #         euclidean_distance_to_centroid(data[idx], centroids[cluster_idx], discrete_columns, weights)**2
-    #         for idx in clusters[cluster_idx]
-    #     )
-    #     for cluster_idx in range(k)
-    # )
-
-    # return {
-    #     'clusters': clusters,
-    #     'centroids': centroids,
-    #     'wcss': wcss,
-    #     'iterations': iteration + 1
-    # }
 
     # Tính trung bình bình phương khoảng cách trong từng cụm
     mean_squared_distances = []
