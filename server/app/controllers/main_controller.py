@@ -2,6 +2,8 @@ from flask import request, jsonify
 from . import main_api
 from ..services.main_service import MainService
 from ..k_means_handler.k_means_handler import vectorize_students, kmeans
+from ..k_means_handler.vectorize_student import vectorize_student_by_id
+from ..k_means_handler.distance import euclidean_distance_with_weights
 import pandas as pd
 
 
@@ -20,16 +22,14 @@ def get_all_rooms_and_student_requests():
     
 @main_api.route("/k-means-result", methods=["GET"])
 def get_k_means_result():
-    print(1)
     main_service = MainService()
+
     student_requests_data = main_service.get_all_male_student_requests_data()
-    print(2)
     data_frame = pd.DataFrame(student_requests_data)
-    print(data_frame)
-    vectorized_data = vectorize_students(data_frame)
-    print(vectorized_data)
+
     weights = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-    result = kmeans(data_frame, 100, weights, max_iter = 100)
+    k=100
+    result = kmeans(data_frame, k , weights, max_iter = 100)
     print(result)
     return jsonify({
         "success": True,
