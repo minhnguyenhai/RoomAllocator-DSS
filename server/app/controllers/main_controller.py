@@ -22,7 +22,7 @@ def get_all_rooms_and_student_requests():
 def get_k_means_result():
     print(1)
     main_service = MainService()
-    student_requests_data = main_service.get_all_student_requests_data()
+    student_requests_data = main_service.get_all_male_student_requests_data()
     print(2)
     data_frame = pd.DataFrame(student_requests_data)
     print(data_frame)
