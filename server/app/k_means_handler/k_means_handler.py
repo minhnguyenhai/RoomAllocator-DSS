@@ -130,6 +130,9 @@ def kmeans(datafr, k, weights, max_iter=100):
     continuous_features = [0, 1, 2, 3, 4, 5, 6]
     # Khởi tạo centroid ban đầu ngẫu nhiên
     centroids = []
+    
+    used_points = set()  # Tập hợp lưu các điểm đã được sử dụng làm centroid cho cụm trống.
+
     for _ in range(k):
         point = data[np.random.choice(n_samples)].tolist()
         centroid = []
@@ -164,9 +167,13 @@ def kmeans(datafr, k, weights, max_iter=100):
                     np.max([
                         euclidean_distance_to_centroid(point, centroid, discrete_columns, weights)
                         for centroid in centroids
-                    ]) for point in data
+                    ]) if idx not in used_points else -np.inf  # Loại bỏ điểm đã được sử dụng
+                    for idx, point in enumerate(data)
                 ])
+                
                 new_centroid_idx = np.argmax(distances_to_other_centroids)
+                used_points.add(new_centroid_idx)  # Đánh dấu điểm đã được sử dụng
+
                 new_centroid_data = data[new_centroid_idx].tolist()
                 centroid = []
                 for j in range(n_features):
@@ -177,8 +184,17 @@ def kmeans(datafr, k, weights, max_iter=100):
                         proportions = np.zeros(max_value + 1)
                         proportions[int(new_centroid_data[j])] = 1.0
                         centroid.append(proportions)
+                
                 centroids[i] = centroid
+                
+                # Xóa new_centroid_idx khỏi các cụm khác
+                for j in range(k):
+                    if new_centroid_idx in clusters[j]:
+                        clusters[j].remove(new_centroid_idx)
+                
+                # Gán điểm này vào cụm trống
                 clusters[i] = [new_centroid_idx]
+
 
         # Bước 2: Tính lại centroid
         new_centroids = assign_centroids(data, clusters, continuous_features, discrete_columns)
