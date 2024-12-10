@@ -160,12 +160,9 @@ def kmeans(datafr, k, weights, max_iter=100):
             cluster_idx = np.argmin(distances)
             clusters[cluster_idx].append(idx)
 
-        print(f"Iteration {iteration}: Cluster sizes - {[len(cluster) for cluster in clusters]}")
-        print(f"Centroids: {centroids}")
         # Kiểm tra và xử lý cụm trống
         for i in range(k):
             if len(clusters[i]) == 0:
-                print(f"Cluster {i} is empty, reassigning centroid...")
                 distances_to_other_centroids = np.array([
                     np.max([
                         euclidean_distance_to_centroid(point, centroid, discrete_columns, weights)
