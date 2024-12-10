@@ -128,13 +128,13 @@ def kmeans(datafr, k, weights, max_iter=100):
 
     discrete_columns = [7, 8, 9]
     continuous_features = [0, 1, 2, 3, 4, 5, 6]
+
     # Khởi tạo centroid ban đầu ngẫu nhiên
     centroids = []
     
-    used_points = set()  # Tập hợp lưu các điểm đã được sử dụng làm centroid cho cụm trống.
-
-    for _ in range(k):
-        point = data[np.random.choice(n_samples)].tolist()
+    indices = np.random.choice(n_samples, k, replace=False)
+    for idx in indices:
+        point = data[idx].tolist()
         centroid = []
         for i in range(n_features):
             if i in continuous_features:
@@ -160,21 +160,21 @@ def kmeans(datafr, k, weights, max_iter=100):
             cluster_idx = np.argmin(distances)
             clusters[cluster_idx].append(idx)
 
+        print(f"Iteration {iteration}: Cluster sizes - {[len(cluster) for cluster in clusters]}")
+        print(f"Centroids: {centroids}")
         # Kiểm tra và xử lý cụm trống
         for i in range(k):
             if len(clusters[i]) == 0:
+                print(f"Cluster {i} is empty, reassigning centroid...")
                 distances_to_other_centroids = np.array([
                     np.max([
                         euclidean_distance_to_centroid(point, centroid, discrete_columns, weights)
                         for centroid in centroids
-                    ]) if idx not in used_points else -np.inf  # Loại bỏ điểm đã được sử dụng
-                    for idx, point in enumerate(data)
+                    ]) for point in data
                 ])
-                
                 new_centroid_idx = np.argmax(distances_to_other_centroids)
-                used_points.add(new_centroid_idx)  # Đánh dấu điểm đã được sử dụng
-
                 new_centroid_data = data[new_centroid_idx].tolist()
+                
                 centroid = []
                 for j in range(n_features):
                     if j in continuous_features:
@@ -184,7 +184,6 @@ def kmeans(datafr, k, weights, max_iter=100):
                         proportions = np.zeros(max_value + 1)
                         proportions[int(new_centroid_data[j])] = 1.0
                         centroid.append(proportions)
-                
                 centroids[i] = centroid
                 
                 # Xóa new_centroid_idx khỏi các cụm khác
