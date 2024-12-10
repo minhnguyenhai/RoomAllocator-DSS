@@ -6,7 +6,7 @@ $.fn.wrapBy = function (tag = "div") {
 const data = {};
 
 function get(url, params = {}) {
-    const BASE_URL = "http://localhost:5000/api";
+    const BASE_URL = `http://${window.location.hostname}:5000/api`;
     url = Object.keys(params) == 0 ? url : url + "?" + Object.entries(params).map(([k, v]) => `${k}=${v}`).join("&");
 
     return new Promise((resolve, reject) => {
@@ -207,9 +207,13 @@ async function labelData() {
                     const name = "name" + i1 + i2 + ri();
                     for (let i = 0; i < 11; i++) {
                         const id = "id" + Math.round(Math.random() * 10e10);
+                        const label = {
+                            0: "0 (Rất hợp nhau)",
+                            10: "10 (Rất khác biệt)"
+                        }
                         r.push($(`<div class="form-check form-check-inline mr-5">
                             <input class="form-check-input" type="radio" id=${id} name="${name}">
-                            <label class="form-check-label" for="${id}">${i}</label>
+                            <label class="form-check-label" for="${id}">${label[i] || i}</label>
                         </div>`)
                         .find("input").on("change", function () {
                             if (this.checked) score[i1 + "-" + i2] = i;
@@ -284,15 +288,12 @@ async function result() {
     const { id, result } = await get("/k-means-result");
     const [studentIdsLists, MEDs] = result;
     const clusters = [];
-    let a = 0;
     for (let i = 0; i < studentIdsLists.length; i++) {
         clusters.push({
             studentIds: studentIdsLists[i],
             med: MEDs[i]
         });
-        a += studentIdsLists[i].length;
     }
-    console.log(id, a);
 
     clearInterval(interval1);
 

@@ -8,8 +8,6 @@ main_service = MainService()
 
 def solver(kr):
     rooms = main_service.get_all_rooms_data()
-    print("len(kr[0])", sum(len(i) for i in kr[0]))
-    # return []
     result, remaining_room_ids, remaining_student_ids = handle_kmean_result(kr, rooms)
     while len(remaining_student_ids) > 15:
         set_remaining_room_ids = set(remaining_room_ids)

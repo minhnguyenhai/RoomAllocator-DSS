@@ -4,10 +4,6 @@ import random as rd
 _best_score = {}
 _best_result = {}
 def backtracking(student_ids, room_capacities, d):
-    a = 0
-    print(room_capacities)
-    for i in room_capacities: a += room_capacities[i]
-    print(len(student_ids), a)
     global _best_result
     id = rd.randint(1, 10e10)
     def TRY(id, index = 0, student_ids_in_rooms = {}):
@@ -43,4 +39,9 @@ def backtracking(student_ids, room_capacities, d):
             room_student_ids.pop()
     
     TRY(id)
-    return _best_result.get(id, None)
+
+    result = _best_result.get(id, None)
+    _best_result.pop(id, None)
+    _best_score.pop(id, None)
+
+    return result

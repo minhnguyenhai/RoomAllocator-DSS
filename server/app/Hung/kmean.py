@@ -16,12 +16,10 @@ def kmean(student_ids, rooms):
 def handle_kmean_result(kr, rooms):
     student_ids_list = kr[0]
     student_ids_list.sort(key=len, reverse=True)
-    print(sum(len(i) for i in student_ids_list), sum(int(i["capacity"]) for i in rooms))
     
     distinct_room_capacities = list(set([r["capacity"] for r in rooms]))
     distinct_room_capacities.sort(key=int)
     room_capacities = [[int(c), [room["id"] for room in rooms if room["capacity"] == c]] for c in distinct_room_capacities]
-    print(room_capacities)
     def idx(n):
         if n < room_capacities[0][0]: return -1
         def _idx(n, l, r):
@@ -44,19 +42,16 @@ def handle_kmean_result(kr, rooms):
             if n == 0: break
             i = idx(n)
             if i >= 0:
-                print(len(student_ids), room_capacities[i][0])
                 result.append({
                     "room_id": room_capacities[i][1].pop(),
                     "student_ids": student_ids[-room_capacities[i][0]:]
                 })
                 student_ids = student_ids[:-room_capacities[i][0]]
             else:
-                print(len(student_ids))
                 remaining_student_ids += student_ids
                 break
     remaining_room_ids = []
     for room_capacity in room_capacities:
         remaining_room_ids += room_capacity[1]
-    print(remaining_room_ids, remaining_student_ids)
     
     return result, remaining_room_ids, remaining_student_ids
