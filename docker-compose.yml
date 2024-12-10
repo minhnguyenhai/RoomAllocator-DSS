@@ -1,0 +1,31 @@
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    container_name: hust_it4341_frontend_nginx
+  backend:
+    build: ./server
+    ports:
+      - "5000:5000"
+    environment:
+      - POSTGRESQL_USERNAME=postgres
+      - POSTGRESQL_PASSWORD=it4341
+      - POSTGRESQL_DBNAME=it4341
+      - POSTGRESQL_HOST=database
+      - POSTGRESQL_PORT=5432
+    depends_on:
+      database:
+        condition: service_healthy
+    container_name: hust_it4341_backend_flask
+  database:
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=it4341
+      - POSTGRES_DB=it4341
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d it4341"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    container_name: hust_it4341_database_postgres

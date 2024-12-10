@@ -128,10 +128,13 @@ def kmeans(datafr, k, weights, max_iter=100):
 
     discrete_columns = [7, 8, 9]
     continuous_features = [0, 1, 2, 3, 4, 5, 6]
+
     # Khởi tạo centroid ban đầu ngẫu nhiên
     centroids = []
-    for _ in range(k):
-        point = data[np.random.choice(n_samples)].tolist()
+    
+    indices = np.random.choice(n_samples, k, replace=False)
+    for idx in indices:
+        point = data[idx].tolist()
         centroid = []
         for i in range(n_features):
             if i in continuous_features:
@@ -168,6 +171,7 @@ def kmeans(datafr, k, weights, max_iter=100):
                 ])
                 new_centroid_idx = np.argmax(distances_to_other_centroids)
                 new_centroid_data = data[new_centroid_idx].tolist()
+                
                 centroid = []
                 for j in range(n_features):
                     if j in continuous_features:
@@ -178,7 +182,15 @@ def kmeans(datafr, k, weights, max_iter=100):
                         proportions[int(new_centroid_data[j])] = 1.0
                         centroid.append(proportions)
                 centroids[i] = centroid
+                
+                # Xóa new_centroid_idx khỏi các cụm khác
+                for j in range(k):
+                    if new_centroid_idx in clusters[j]:
+                        clusters[j].remove(new_centroid_idx)
+                
+                # Gán điểm này vào cụm trống
                 clusters[i] = [new_centroid_idx]
+
 
         # Bước 2: Tính lại centroid
         new_centroids = assign_centroids(data, clusters, continuous_features, discrete_columns)
@@ -214,8 +226,11 @@ def kmeans(datafr, k, weights, max_iter=100):
 
     # Thay thế chỉ số trong clusters bằng student_id
     clusters_with_student_ids = []
+    kkk = 0
     for cluster in clusters:
         cluster_student_ids = datafr.loc[cluster, 'student_id'].tolist()
         clusters_with_student_ids.append(cluster_student_ids)
+        print(kkk, cluster_student_ids)
+        kkk += 1
 
     return clusters_with_student_ids, mean_squared_distances
