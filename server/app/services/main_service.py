@@ -39,7 +39,7 @@ class MainService:
             new_k_means_result = KMeansResult(result=result)
             db.session.add(new_k_means_result)
             db.session.commit()
-            return new_k_means_result.to_dict()
+            return new_k_means_result
         except Exception as e:
             db.session.rollback()
             logging.error(f"Error while saving K-means result: {e}")

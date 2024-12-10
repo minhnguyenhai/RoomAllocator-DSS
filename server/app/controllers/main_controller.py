@@ -23,17 +23,16 @@ def get_all_rooms_and_student_requests():
 @main_api.route("/k-means-result", methods=["GET"])
 def get_k_means_result():
     main_service = MainService()
-
-    student_requests_data = main_service.get_all_male_student_requests_data()
-    data_frame = pd.DataFrame(student_requests_data)
-
+    male_student_requests_data = main_service.get_all_male_student_requests_data()
+    data_frame = pd.DataFrame(male_student_requests_data)
     weights = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
     k=100
     result = kmeans(data_frame, k , weights, max_iter = 100)
-    print(result)
+    k_means_result = main_service.save_k_means_result(result)
     return jsonify({
         "success": True,
         "message": "Successfully fetched K-means result.",
+        "id": k_means_result.id,
         "result": result
     }), 200
     
