@@ -50,7 +50,7 @@ function $loading() {
     return $(`<div>
         <div style="padding: 60px;">
             <div class="spinner-border text-primary" role="status">
-                ${true ? "" : '<span class="sr-only" style="padding-left: 12px">Loading...</span>'}
+                ${false ? "" : '<span class="sr-only" style="padding-left: 12px">Loading...</span>'}
             </div>
         </div>
     </div>`);
@@ -354,7 +354,7 @@ async function result() {
                 <div class="col-md-6" id="kmean-step1-room-num-students-statistic"></div>
                 <div class="col-md-12" id="kmean-step1-room-and-cluster-num-students-statistic" style="max-height: 500px;"></div>
             </div>
-            <select class="form-select" style="width: max-content;">
+            <select class="form-select mt-4" style="width: max-content;">
                 <option value="1" selected>Sắp xếp theo Sự khác biệt của sinh viên trong cụm tăng dần</option>
                 <option value="2">Sắp xếp theo Sự khác biệt của sinh viên trong cụm giảm dần</option>
                 <option value="3">Sắp xếp theo số sinh viên trong cụm tăng dần</option>
@@ -467,7 +467,9 @@ async function result() {
         $(`<h2>Bước 2: Phân chia các cụm sinh viên về các phòng <span id="kmean-step2-time"></span></h2>`),
         $loading().prop("id", "kmean-step2-loading"),
         `<div id="kmean-step2-result" style="display: none">
-            <div class="row gy-3 mt-3" id="kmean-step2-statistic-wrapper"></div>
+            <div class="row gy-3 mt-3">
+                <div class="col-md-12" id="kmean-step2-mde-statistic"></div>
+            </div>
             <select class="form-select mt-4" style="width: max-content;">
                 <option value="1" selected>Sắp xếp theo Sự khác biệt của sinh viên trong phòng tăng dần</option>
                 <option value="2">Sắp xếp theo Sự khác biệt của sinh viên trong phòng giảm dần</option>

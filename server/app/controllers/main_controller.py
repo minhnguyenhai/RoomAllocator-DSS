@@ -2,7 +2,6 @@ from flask import request, jsonify
 from . import main_api
 from ..services.main_service import MainService
 from ..k_means_handler.k_means_handler import kmeans
-from ..k_means_handler.distance import euclidean_distance_with_weights_2
 from ..Hung.weight import get_weight, re_calculate_weights
 from ..Hung.solver import solver
 from ..Hung.backtracking import greedy
