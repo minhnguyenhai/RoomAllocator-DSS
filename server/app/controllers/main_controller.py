@@ -1,9 +1,7 @@
 from flask import request, jsonify
 from . import main_api
 from ..services.main_service import MainService
-from ..k_means_handler.k_means_handler import vectorize_students, kmeans
-from ..k_means_handler.vectorize_student import vectorize_student_by_id
-from ..k_means_handler.distance import euclidean_distance_with_weights
+from ..k_means_handler.k_means_handler import kmeans
 from ..Hung.weight import get_weight
 from ..Hung.solver import solver
 import pandas as pd
