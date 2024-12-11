@@ -10,3 +10,7 @@
 .mr-5 {
     margin-right: 3rem !important;
 }
+
+select {
+    background-color: aliceblue !important;
+}

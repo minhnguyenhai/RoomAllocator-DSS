@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler, LabelEncoder
+from ..Hung.metric import mean_euclid_distance_of_room
 
 # Hàm vector hóa sinh viên
 def vectorize_students(data_origin):
@@ -68,7 +69,7 @@ def euclidean_distance_to_centroid(point, centroid, discrete_columns, weights):
         else:  # Nếu là thuộc tính liên tục
             distance += weights[i] * ((point[i] - centroid[i]) ** 2)  # Khoảng cách Euclidean có trọng số
 
-    return np.sqrt(distance)
+    return np.sqrt(distance) if distance > 0 else 0
 
 def assign_centroids(data, clusters, continuous_features, discrete_columns):
     """
@@ -212,25 +213,12 @@ def kmeans(datafr, k, weights, max_iter=100):
 
         centroids = new_centroids
 
-    # Tính trung bình bình phương khoảng cách trong từng cụm
-    mean_squared_distances = []
-    for cluster_idx in range(k):
-        if len(clusters[cluster_idx]) == 0:
-            mean_squared_distances.append(0)  # Nếu cụm trống, đặt giá trị là 0
-        else:
-            total_distance = sum(
-                euclidean_distance_to_centroid(data[idx], centroids[cluster_idx], discrete_columns, weights)**2
-                for idx in clusters[cluster_idx]
-            )
-            mean_squared_distances.append(total_distance / len(clusters[cluster_idx]))
-
     # Thay thế chỉ số trong clusters bằng student_id
     clusters_with_student_ids = []
-    kkk = 0
+    mean_squared_distances = []
     for cluster in clusters:
         cluster_student_ids = datafr.loc[cluster, 'student_id'].tolist()
         clusters_with_student_ids.append(cluster_student_ids)
-        print(kkk, cluster_student_ids)
-        kkk += 1
+        mean_squared_distances.append(mean_euclid_distance_of_room(cluster_student_ids, weights))
 
     return clusters_with_student_ids, mean_squared_distances
