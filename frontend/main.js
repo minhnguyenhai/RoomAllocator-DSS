@@ -349,8 +349,12 @@ async function result() {
         $(`<h2>Bước 1: Phân chia ${data.students.length} sinh viên thành ${data.rooms.length} cụm <span id="kmean-step1-time"></span></h2>`),
         $loading().prop("id", "kmean-loading"),
         `<div id="kmean-result" style="display: none">
-            <div class="row gy-3 mt-3" id="kmean-step1-statistic-wrapper"></div>
-            <select class="form-select mt-4" style="width: max-content;">
+            <div class="row gy-3 mt-3">
+                <div class="col-md-6" id="kmean-step1-mde-statistic"></div>
+                <div class="col-md-6" id="kmean-step1-room-num-students-statistic"></div>
+                <div class="col-md-12" id="kmean-step1-room-and-cluster-num-students-statistic" style="max-height: 500px;"></div>
+            </div>
+            <select class="form-select" style="width: max-content;">
                 <option value="1" selected>Sắp xếp theo Sự khác biệt của sinh viên trong cụm tăng dần</option>
                 <option value="2">Sắp xếp theo Sự khác biệt của sinh viên trong cụm giảm dần</option>
                 <option value="3">Sắp xếp theo số sinh viên trong cụm tăng dần</option>
