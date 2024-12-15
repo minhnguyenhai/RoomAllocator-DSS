@@ -14,3 +14,7 @@
 select {
     background-color: aliceblue !important;
 }
+
+.header {
+    color: rgb(13, 110, 253);
+}

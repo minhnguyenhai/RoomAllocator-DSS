@@ -225,7 +225,7 @@ async function labelData() {
     hideAll();
     const sumWeights = Object.values(data.weights).reduce((p, v) => p + v);
     const weights = studentHeaders.filter(({value}) => data.weights[value] !== undefined).map(
-        ({ text, value }) => ({ text: text.replaceAll("<br>", " "), value, weight: Math.round(data.weights[value]*10/sumWeights*100)/100 })
+        ({ text, value }) => ({ text: text.replaceAll("<br>", " "), value, weight: round(data.weights[value]*100/sumWeights, 1) })
     );
     const $tab = $("#label-data").show().html("").append(
         $("<div></div>").append(
@@ -346,14 +346,10 @@ async function result() {
     }
 
     const $step1 = $('<div class="row gy-4 mt-3"></div>').append(
-        $(`<h2>Bước 1: Phân chia ${data.students.length} sinh viên thành ${data.rooms.length} cụm <span id="kmean-step1-time"></span></h2>`),
+        $(`<h2 class="header">Bước 1: Phân chia ${data.students.length} sinh viên thành ${data.rooms.length} cụm <span id="kmean-step1-time"></span></h2>`),
         $loading().prop("id", "kmean-loading"),
         `<div id="kmean-result" style="display: none">
-            <div class="row gy-3 mt-3">
-                <div class="col-md-6" id="kmean-step1-mde-statistic"></div>
-                <div class="col-md-6" id="kmean-step1-room-num-students-statistic"></div>
-                <div class="col-md-12" id="kmean-step1-room-and-cluster-num-students-statistic" style="max-height: 500px;"></div>
-            </div>
+            <div class="row gy-3 mt-3" id="kmean-step1-statistic-wrapper"></div>
             <select class="form-select mt-4" style="width: max-content;">
                 <option value="1" selected>Sắp xếp theo Sự khác biệt của sinh viên trong cụm tăng dần</option>
                 <option value="2">Sắp xếp theo Sự khác biệt của sinh viên trong cụm giảm dần</option>
@@ -463,13 +459,11 @@ async function result() {
         );
     }
 
-    const $step2 = $('<div class="row gy-4 mt-4"></div>').append(
-        $(`<h2>Bước 2: Phân chia các cụm sinh viên về các phòng <span id="kmean-step2-time"></span></h2>`),
+    const $step2 = $('<div class="row gy-4 mt-5"></div>').append(
+        $(`<h2 class="header">Bước 2: Phân chia các cụm sinh viên về các phòng <span id="kmean-step2-time"></span></h2>`),
         $loading().prop("id", "kmean-step2-loading"),
         `<div id="kmean-step2-result" style="display: none">
-            <div class="row gy-3 mt-3">
-                <div class="col-md-12" id="kmean-step2-mde-statistic"></div>
-            </div>
+            <div class="row gy-3 mt-3" id="kmean-step2-statistic-wrapper"></div>
             <select class="form-select mt-4" style="width: max-content;">
                 <option value="1" selected>Sắp xếp theo Sự khác biệt của sinh viên trong phòng tăng dần</option>
                 <option value="2">Sắp xếp theo Sự khác biệt của sinh viên trong phòng giảm dần</option>
@@ -558,9 +552,138 @@ async function result() {
             .wrapBy()
         );
     }
+
+    $('<div class="mt-5"></div>').append(
+        $(`<h2 class="header">Xem các phương pháp khác</h2>`),
+        $btn("Xem các phương pháp khác", "success").on("click", function () {
+            $(this).hide();
+            $("#other-methods").show();
+            showOtherMethods();
+        }).wrapBy(),
+        $(`<div id="other-methods" style="display: none" class="row gy-4 mt-3"></div>`).append(
+            ["kmean-interger-programing", "greedy"].map(
+                i => $(`<div id="${i}" class="col-md-6"></div>`).append(
+                    $('<div style="width: 100%; height: 300px; display: flex; justify-content: center; align-items: center"></div>').append($loading())
+                )
+            )
+        )
+    )
+    .appendTo($result);
+
+    async function showOtherMethods() {
+        const items = [
+            ["K-Means + Interger Programing", "kmean-interger-programing", "", result2],
+            ["Tham lam", "greedy", "/allocation-result-greedy"]
+        ];
+
+        function render() {
+            const maxXValue = items.filter(i => i[3]).length != 0 ? Math.max(...items.filter(i => i[3]).map(i => {
+                return Math.max(...i[3].map(c => c.med));
+            })) : undefined;
+
+            items.forEach(([name, id, url, result]) => {
+                if (!result) return;
+
+                $("#" + id).html("");
+                chart({
+                    id,
+                    data: result.map(r => r.med),
+                    xlabel: "Độ khác biệt",
+                    ylabel: "Số lượng phòng",
+                    title: `${name} (avg: ${round(avg(result.map(r => r.med)))})`,
+                    maxXValue,
+                    maxYValue: 20,
+                    binCount: 50
+                });
+            });
+
+            const allDone = items.every(i => i[3]);
+            if (allDone) {
+                localOptimization(maxXValue);
+            }
+        }
+
+        items.forEach(async ([name, id, url, result], index) => {
+            if (!result) {
+                const { result: result2 } = await get(url);
+                items[index][3] = result2;
+            }
+            render();
+        });
+    }
+
+    function localOptimization(maxXValue) {
+        $('<div class="mt-5"></div>').append(
+            $(`<h2 class="header">Tối ưu cục bộ với IP</h2>`),
+            $btn("Nạp vip để bắt đầu", "success").on("click", function () {
+                $(this).hide();
+                start()
+                $("#local-optimization").show();
+            }).wrapBy(),
+            $(`<div id="local-optimization" style="display: none" class="row gy-4 mt-3"></div>`).append(
+                $(`<div id="local-optimization-visualize"></div>`).wrapBy().addClass("col-md-6"),
+                $(`<div class="col-md-1" style="height: 1px;"></div>`),
+                $(`<div class="col-md-5" id="local-optimization-history">
+                    <h4 class="mb-4">Lịch sử</h4>
+                </div>`)
+            )
+        )
+        .appendTo($result);
+
+        async function start() {
+            let _i = 0;
+            let stop = false;
+            function append(result) {
+                _i++;
+                $("#local-optimization-visualize").html("");
+                chart({
+                    id: "local-optimization-visualize",
+                    data: result.map(r => r.med),
+                    xlabel: "Độ khác biệt",
+                    ylabel: "Số lượng phòng",
+                    title: `K-Means + IP + Tối ưu cục bộ (avg: ${round(avg(result.map(r => r.med)))})`,
+                    maxXValue,
+                    maxYValue: 20,
+                    binCount: 50
+                });
+
+                $("#local-optimization-history")
+                .find("p:last").remove().end()
+                .find("button.stop").remove().end()
+                .append(`<p>${_i}: ${avg(result.map(r => r.med))}</p>`)
+                .append(!stop && `<p>${_i + 1}: Loading...</p>`)
+                .append(
+                    !stop && $btn("Dừng").addClass("stop").on("click", function () {
+                        stop = true;
+                        $(this).remove();
+                    })
+                );
+            }
+
+            append(result2, true);
+            let last = result2;
+            while (true) {
+                const { result: result3 } = await get("/local-optimization", last, "post");
+                if (result3.does_not_changed) {
+                    $("#local-optimization-history")
+                    .find("p:last").remove().end()
+                    .find("button.stop").remove().end()
+                    .append(`<p>Done!</p>`);
+                    break;
+                }
+
+                last = result3.result;
+                append(last);
+
+                if (stop) {
+                    break;
+                }
+            }
+        }
+    }
 }
 
-function chart({ id, data, xlabel, ylabel = "Số lượng", title = "", binCount = 20, paddingInteger = false, objectDataSortValue = true }) {
+function chart({ id, data, xlabel, ylabel = "Số lượng", title = "", binCount = 20, paddingInteger = false, objectDataSortValue = true, maxYValue = null, maxXValue = null, startZero = true }) {
     let x, y;
 
     const isNumber = s => {
@@ -610,8 +733,8 @@ function chart({ id, data, xlabel, ylabel = "Số lượng", title = "", binCoun
             y = x.map(i => o[i] || 0);
         }
         else {
-            const minValue = Math.min(...data);
-            const maxValue = Math.max(...data);
+            const minValue = Math.min(...data, ...(startZero ? [0] : []));
+            const maxValue = maxXValue || Math.max(...data);
             const binSize = (maxValue - minValue) / binCount;
 
             x = [];
@@ -658,6 +781,7 @@ function chart({ id, data, xlabel, ylabel = "Số lượng", title = "", binCoun
             }]
         },
         options: {
+            responsive: true,
             scales: {
                 x: {
                     title: {
@@ -666,6 +790,7 @@ function chart({ id, data, xlabel, ylabel = "Số lượng", title = "", binCoun
                     }
                 },
                 y: {
+                    ...(maxYValue ? { max: maxYValue } : {}),
                     title: {
                         display: true,
                         text: ylabel

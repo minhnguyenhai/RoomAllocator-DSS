@@ -2,8 +2,9 @@ from flask import request, jsonify
 from . import main_api
 from ..services.main_service import MainService
 from ..k_means_handler.k_means_handler import kmeans
+from ..k_means_handler.distance import euclidean_distance_with_weights_2
 from ..Hung.weight import get_weight, re_calculate_weights
-from ..Hung.solver import solver
+from ..Hung.solver import solver, local_optimization
 from ..Hung.backtracking import greedy
 from ..Hung.metric import mean_euclid_distance_of_room
 import pandas as pd
@@ -83,4 +84,32 @@ def get_allocation_result():
         "success": True,
         "message": "Successfully fetched allocation result.",
         "result": allocation_result
+    }), 200
+
+@main_api.route("/allocation-result-greedy", methods=["GET"])
+def get_allocation_result_greedy():
+    main_service = MainService()
+    student_ids = [s["student_id"] for s in main_service.get_all_male_student_requests_data()]
+    rooms = main_service.get_all_rooms_data()
+    result = greedy(
+        student_ids,
+        { room["id"]: int(room["capacity"]) for room in rooms },
+        euclidean_distance_with_weights_2(student_ids, get_weight())
+    )
+    for r in result:
+        r["med"] = mean_euclid_distance_of_room(r["student_ids"], get_weight())
+    return jsonify({
+        "success": True,
+        "message": "Successfully fetched allocation result.",
+        "result": result
+    }), 200
+
+@main_api.route("/local-optimization", methods=["POST"])
+def local_optimization_api():
+    data = json.loads(request.get_data().decode("utf-8"))
+    result = local_optimization(data)
+    return jsonify({
+        "success": True,
+        "message": "Successfully.",
+        "result": result
     }), 200

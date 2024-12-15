@@ -121,6 +121,7 @@ def interger_programing(student_ids, room_capacities, d, time_limit_seconds = 30
         for j in range(n_students):
             for k in range(n_students):
                 solver.Add(y[i][j][k] >= x[i][j] + x[i][k] - 1)
+                solver.Add(y[i][j][k] <= (x[i][j] + x[i][k])/2)
 
     f = sum(
         sum(
