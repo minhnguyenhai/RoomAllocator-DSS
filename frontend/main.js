@@ -5,21 +5,45 @@ $.fn.wrapBy = function (tag = "div") {
 
 const data = {};
 
-function get(url, params = {}) {
+function get(url, data = {}, method = "GET") {
     const BASE_URL = `http://${window.location.hostname}:5000/api`;
-    url = Object.keys(params) == 0 ? url : url + "?" + Object.entries(params).map(([k, v]) => `${k}=${v}`).join("&");
+    method = method.toUpperCase();
+    url = (Object.keys(data) == 0 || method != "GET") ? url : url + "?" + Object.entries(data).map(([k, v]) => `${k}=${v}`).join("&");
 
     return new Promise((resolve, reject) => {
-        fetch(BASE_URL + url).then(res => res.json()).then(resolve).catch(reject);
+        fetch(BASE_URL + url, {
+            method,
+            body: method != "GET" ? JSON.stringify(data) : undefined
+        })
+        .then(res => res.json())
+        .then(r => {
+            console.log(url, r);
+            resolve(r);
+        })
+        .catch(reject);
     })
+}
+
+async function get2(url, data = {}, method = "GET") {
+    try {
+        $("button").prop("disabled", true);
+        return await get(url, data, method);
+    }
+    finally {
+        $("button").prop("disabled", false);
+    }
+}
+
+function round(x, n = 2) {
+    return Math.round(x*(10**n))/(10**n);
 }
 
 function hideAll() {
     $("#root > *").hide();
 }
 
-function $btn(text) {
-    return $(`<button type="button" class="btn btn-primary">${text}</button>`)
+function $btn(text, type = "primary") {
+    return $(`<button type="button" class="btn btn-${type}">${text}</button>`)
 }
 
 function $loading() {
@@ -59,15 +83,22 @@ function $table({ headers, items, title = "", subtitle = "", LIMIT = 5 }) {
                 $("<tr></tr>").append(
                     $(`<th scope="row">${i + 1}</th>`),
                     headers.map(h => {
-                        return $(`<td>${items[i][h.value]}</td>`);
+                        try {
+                            return $(`<td>${items[i][h.value]}</td>`);
+                        }
+                        catch(e) {
+                            console.error("Error message:", e.message);
+                            console.error("Stack trace:", e.stack);
+                            console.log(i, h, h.value, items[i]);
+                        }
                     })
                 )
             );
         }
         if (i < items.length) {
             $table.find(".table-control").append(
-                $btn(`Xem thêm ${LIMIT}`).on("click", () => render(start + LIMIT)),
-                $btn("Xem tất cả").addClass("ml-3").on("click", () => render(start + LIMIT, 10e10))
+                $btn(`Xem thêm ${LIMIT}`).on("click", () => render(i)),
+                $btn("Xem tất cả").addClass("ml-3").on("click", () => render(i, 10e10))
             );
         } else {
             $table.find(".table-info").html("");
@@ -96,8 +127,8 @@ function $tableGroup({ tables, LIMIT = 5, perRow = 2 }) {
         }
         if (i < tables.length) {
             $tableGroup.find(".table-group-control").append(
-                $btn(`Xem thêm ${LIMIT}`).on("click", () => render(start + LIMIT)),
-                $btn("Xem tất cả").addClass("ml-3").on("click", () => render(start + LIMIT, 10e10))
+                $btn(`Xem thêm ${LIMIT}`).on("click", () => render(i)),
+                $btn("Xem tất cả").addClass("ml-3").on("click", () => render(i, 10e10))
             );
         } else {
             $tableGroup.find(".table-group-info").html("");
@@ -133,8 +164,8 @@ async function home() {
     hideAll();
     const $home = $("#root div#home").show().html("").append(
         $('<div class="col-12"></div>').append(
-            $btn("Gán nhãn dữ liệu").on("click", labelData),
-            $btn("Phân chia phòng").addClass("ml-3").on("click", result)
+            $btn("Gán nhãn dữ liệu", "info").on("click", labelData),
+            $btn("Phân chia phòng", "success").addClass("ml-3").on("click", result)
         )
     );
 
@@ -152,14 +183,15 @@ async function home() {
         })
         .wrapBy().addClass("col-md-6").prop("id", "temp-room-table"),
     );
-
-    const { rooms, student_requests: students } = await get("/");
+    
+    const { rooms, student_requests: students, weights } = await get2("/");
     data.rooms = rooms;
     data.students = students;
     data.roomMapping = {};
     data.studentMapping = {};
     data.rooms.forEach(room => data.roomMapping[room.id] = room);
     data.students.forEach(student => data.studentMapping[student.student_id] = student);
+    data.weights = weights;
 
     $home.find("#temp-student-table").remove().end()
         .find("#temp-room-table").remove().end()
@@ -175,18 +207,53 @@ async function home() {
                 items: rooms,
                 title: "Danh sách Phòng"
             })
-            .wrapBy().addClass("col-md-6")
+            .wrapBy().addClass("col-md-6"),
+            '<div class="col-md-6" id="room-capacity-statistic"></div>'
         );
+
+    chart({
+        id: "room-capacity-statistic",
+        data: data.rooms.map(room => room.capacity),
+        xlabel: "Sức chứa của phòng",
+        ylabel: "Số phòng",
+        title: "Thống kê về sức chứa của phòng"
+    })
 }
 home();
 
 async function labelData() {
     hideAll();
+    const sumWeights = Object.values(data.weights).reduce((p, v) => p + v);
+    const weights = studentHeaders.filter(({value}) => data.weights[value] !== undefined).map(
+        ({ text, value }) => ({ text: text.replaceAll("<br>", " "), value, weight: Math.round(data.weights[value]*10/sumWeights*100)/100 })
+    );
     const $tab = $("#label-data").show().html("").append(
         $("<div></div>").append(
             $btn("Quay lại").on("click", home)
+        ),
+        $('<div class="row gy-4 mt-4 mb-3"></div>').append(
+            $('<ul class="list-group"></ul>').append(
+                weights.map(({ text, weight }) => {
+                    return $(`<li class="list-group-item">
+                        <div class="d-flex justify-content-between">
+                            <div class="fw-bold">${text}</div>
+                            <span>${weight}</span>
+                        </div>
+                    </li>`);
+                })
+            ).wrapBy().addClass("col-md-6"),
+            '<div id="weights-statistic" class="col-md-6"></div>'
         )
     );
+    const weights2 = {};
+    weights.forEach(({ text, weight }) => weights2[text] = weight);
+    chart({
+        id: "weights-statistic",
+        data: weights2,
+        xlabel: "Thuộc tính",
+        ylabel: "",
+        title: "Thống kê về trọng số"
+    });
     const { student_requests: students } = await get("/");
     const LIMIT = 10;
     const score = {};
@@ -225,25 +292,38 @@ async function labelData() {
         );
     }
 
+    function getResult() {
+        const r = [];
+        Object.entries(score).forEach(([k, v]) => {
+            const [id1, id2] = k.split("-").map(i => students[i].student_id);
+            r.push({
+                std1: data.studentMapping[id1],
+                std2: data.studentMapping[id2],
+                dis: v
+            });
+        });
+        return r;
+    }
+
+    async function saveLabeledData() {
+        await get2("/labeled_data", getResult(), "post");
+    }
+
     $tab.append(
         $("<div></div>").append(
-            $btn("Export kết quả").on("click", () => {
-                const r = [];
-                Object.entries(score).forEach(([k, v]) => {
-                    const [id1, id2] = k.split("-").map(i => students[i].student_id);
-                    r.push({
-                        std1: data.studentMapping[id1],
-                        std2: data.studentMapping[id2],
-                        dis: v
-                    });
-                });
-
-                const blob = new Blob([JSON.stringify(r)], { type: "text/plain" });
+            $btn("Lưu dữ liệu", "success").on("click", async () => {
+                await saveLabeledData();
+                home();
+            }),
+            $btn("Export kết quả", "info").addClass("ml-3").on("click", async () => {
+                const blob = new Blob([JSON.stringify(getResult())], { type: "text/plain" });
                 const a = document.createElement("a");
                 a.href = URL.createObjectURL(blob);
                 a.download = `he-tro-giup-quyet-dinh-gan-nhan-${Math.round(Math.random() * 10e10)}.txt`;
                 a.click();
                 URL.revokeObjectURL(a.href);
+                await saveLabeledData();
+                home();
             }),
             $btn("Quay lại").addClass("ml-3").on("click", home)
         )
@@ -265,11 +345,12 @@ async function result() {
         return text;
     }
 
-    const $step1 = $('<div class="row mt-3"></div>').append(
+    const $step1 = $('<div class="row gy-4 mt-3"></div>').append(
         $(`<h2>Bước 1: Phân chia ${data.students.length} sinh viên thành ${data.rooms.length} cụm <span id="kmean-step1-time"></span></h2>`),
         $loading().prop("id", "kmean-loading"),
         `<div id="kmean-result" style="display: none">
-            <select class="form-select" style="width: max-content;">
+            <div class="row gy-3 mt-3" id="kmean-step1-statistic-wrapper"></div>
+            <select class="form-select mt-4" style="width: max-content;">
                 <option value="1" selected>Sắp xếp theo Sự khác biệt của sinh viên trong cụm tăng dần</option>
                 <option value="2">Sắp xếp theo Sự khác biệt của sinh viên trong cụm giảm dần</option>
                 <option value="3">Sắp xếp theo số sinh viên trong cụm tăng dần</option>
@@ -294,6 +375,50 @@ async function result() {
             med: MEDs[i]
         });
     }
+
+    const avg = arr => arr.reduce((p, v) => p + v, 0)/arr.length;
+    $step1.find("#kmean-step1-statistic-wrapper").append(
+        $btn("Xem thống kê", "success").wrapBy().on("click", function () {
+            $(this).parent().append(
+                '<div class="col-md-6" id="kmean-step1-mde-statistic"></div>',
+                '<div class="col-md-6" id="kmean-step1-room-num-students-statistic"></div>',
+                '<div class="col-md-12" id="kmean-step1-room-and-cluster-num-students-statistic"></div>'
+            );
+            $(this).remove();
+
+            chart({
+                id: "kmean-step1-mde-statistic",
+                data: MEDs,
+                xlabel: "Độ khác biệt",
+                ylabel: "Số lượng cụm",
+                title: `Thống kê về độ khác biệt trung bình của các cụm (avg: ${round(avg(MEDs))})`,
+                binCount: 40
+            });
+        
+            chart({
+                id: "kmean-step1-room-num-students-statistic",
+                data: studentIdsLists.map(i => i.length),
+                xlabel: "Số sinh viên",
+                ylabel: "Số lượng cụm",
+                title: "Thống kê về số sinh viên trong các cụm",
+                paddingInteger: true,
+                binCount: 10e10
+            });
+        
+            chart2({
+                id: "kmean-step1-room-and-cluster-num-students-statistic",
+                title: "Thống kê về số sinh viên trong các cụm và sức chứa của các phòng",
+                data1: {
+                    data: data.rooms.map(i => i.capacity),
+                    label: "Sức chứa phòng"
+                },
+                data2: {
+                    data: studentIdsLists.map(i => i.length),
+                    label: "Số sinh viên trong cụm"
+                }
+            });
+        })
+    )
 
     clearInterval(interval1);
 
@@ -334,15 +459,16 @@ async function result() {
         );
     }
 
-    const $step2 = $('<div class="row mt-4"></div>').append(
+    const $step2 = $('<div class="row gy-4 mt-4"></div>').append(
         $(`<h2>Bước 2: Phân chia các cụm sinh viên về các phòng <span id="kmean-step2-time"></span></h2>`),
         $loading().prop("id", "kmean-step2-loading"),
         `<div id="kmean-step2-result" style="display: none">
-            <select class="form-select" style="width: max-content;">
-                <option value="1" selected>Sắp xếp theo Sự khác biệt của sinh viên trong cụm tăng dần</option>
-                <option value="2">Sắp xếp theo Sự khác biệt của sinh viên trong cụm giảm dần</option>
-                <option value="3">Sắp xếp theo số sinh viên trong cụm tăng dần</option>
-                <option value="4">Sắp xếp theo số sinh viên trong cụm giảm dần</option>
+            <div class="row gy-3 mt-3" id="kmean-step2-statistic-wrapper"></div>
+            <select class="form-select mt-4" style="width: max-content;">
+                <option value="1" selected>Sắp xếp theo Sự khác biệt của sinh viên trong phòng tăng dần</option>
+                <option value="2">Sắp xếp theo Sự khác biệt của sinh viên trong phòng giảm dần</option>
+                <option value="3">Sắp xếp theo số sinh viên trong phòng tăng dần</option>
+                <option value="4">Sắp xếp theo số sinh viên trong phòng giảm dần</option>
             </select>
             <div class="row gy-3 mt-3" id="kmean-step2-result-groups"></div>
         </div>`
@@ -364,6 +490,31 @@ async function result() {
         })
     });
     clearInterval(interval2);
+
+    $step2.find("#kmean-step2-statistic-wrapper").append(
+        $btn("Xem thống kê", "success").wrapBy().on("click", function () {
+            $(this).parent().append(
+                '<div class="col-md-6" id="kmean-step2-mde-statistic"></div>'
+            );
+            $(this).remove();
+
+            chart3({
+                id: "kmean-step2-mde-statistic",
+                data1: {
+                    data: roomsStudents.map(i => i.med),
+                    label: `Sau bước 2 (avg: ${round(avg(roomsStudents.map(i => i.med)))})`
+                },
+                data2: {
+                    data: MEDs,
+                    label: `Sau bước 1 (avg: ${round(avg(MEDs))})`
+                },
+                xlabel: "Độ khác biệt",
+                ylabel: "Số lượng phòng",
+                title: "Thống kê về độ khác biệt trung bình của các phòng",
+                binCount: 50
+            });
+        })
+    );
 
     $step2.find("#kmean-step2-loading").remove();
     $step2.find("#kmean-step2-result").show();
@@ -401,4 +552,284 @@ async function result() {
             .wrapBy()
         );
     }
+}
+
+function chart({ id, data, xlabel, ylabel = "Số lượng", title = "", binCount = 20, paddingInteger = false, objectDataSortValue = true }) {
+    let x, y;
+
+    const isNumber = s => {
+        const s2 = parseFloat(s);
+        if (!isNaN(s2)) {
+            return true;
+        }
+        return false;
+    }
+    const toSorted = arr => {
+        arr = [...arr];
+        if (arr.every(s => isNumber(s))) {
+            arr.sort((a, b) => parseInt(a) - parseInt(b));
+        }
+        else {
+            arr.sort();
+        }
+        return arr;
+    }
+
+    const paddingIntegerArray = arr => {
+        arr = arr.map(i => parseInt(i));
+        const min = Math.min(...arr);
+        const max = Math.max(...arr);
+        const r  = [];
+        for (let i = min; i <= max; i++) {
+            r.push(String(i));
+        }
+        return r;
+    }
+
+    if (Array.isArray(data)) {
+        const set = [...new Set(data)];
+        const allIsNumber = set.every(s => isNumber(s));
+        if (set.length < binCount || (!allIsNumber)) {
+            x = toSorted(set);
+            if (paddingInteger && allIsNumber) {
+                x = paddingIntegerArray(x);
+            }
+
+            const o = {};
+            data.forEach(i => {
+                if (!o[i]) o[i] = 1;
+                else o[i]++;
+            });
+
+            y = x.map(i => o[i] || 0);
+        }
+        else {
+            const minValue = Math.min(...data);
+            const maxValue = Math.max(...data);
+            const binSize = (maxValue - minValue) / binCount;
+
+            x = [];
+            y = [];
+            for (let i = 0; i < binCount; i++) {
+                const t = minValue + binSize*(0.5 + i);
+                x.push(Math.round(t*100)/100);
+                y.push(0);
+            }
+
+            data.forEach(value => {
+                const binIndex = Math.min(
+                    Math.floor((value - minValue) / binSize),
+                    x.length - 1
+                );
+                y[binIndex]++;
+            });
+        }
+    }
+    else {
+        x = toSorted(Object.keys(data));
+        if (paddingInteger) x = paddingIntegerArray(x);
+        y = x.map(i => data[i] || 0);
+
+        if (objectDataSortValue) {
+            const idx = y.map((_, i) => i);
+            idx.sort((a, b) => y[a] - y[b]);
+            y = idx.map(i => y[i]);
+            x = idx.map(i => x[i]);
+        }
+    }
+
+    const canvas = document.createElement("canvas");
+    document.getElementById(id).appendChild(canvas);
+    const ctx = canvas.getContext("2d");
+    new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: x,
+            datasets: [{
+                label: ylabel,
+                data: y,
+                backgroundColor: "#1f77b4"
+            }]
+        },
+        options: {
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: xlabel
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: ylabel
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                ...(title ? {
+                    title: {
+                        display: true,
+                        text: title,
+                        font: {
+                            size: 18,
+                        },
+                        padding: {
+                            top: 10,
+                            bottom: 10,
+                        },
+                    },
+                } : {})
+            }
+        }
+    });
+}
+
+function chart2({ id, data1, data2, ylabel, title = "" }) {
+    const handle = data => {
+        const x = data.map((_, i) => i);
+        const y = [...data];
+        y.sort((a, b) => parseInt(a) - parseInt(b));
+        return [x, y];
+    };
+
+    const [x1, y1] = handle(data1.data);
+    const [x2, y2] = handle(data2.data);
+
+    const canvas = document.createElement("canvas");
+    document.getElementById(id).appendChild(canvas);
+    const ctx = canvas.getContext("2d");
+    new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: x1,
+            datasets: [{
+                label: data1.label,
+                data: y1,
+                backgroundColor: "#1f77b4"
+            }, {
+                label: data2.label,
+                data: y2,
+                backgroundColor: "#ff6384"
+            }]
+        },
+        options: {
+            barPercentage: 1,
+            categoryPercentage: 1,
+            scales: {
+                x: {
+                    title: {
+                        display: false
+                    },
+                    ticks: {
+                        display: false
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: ylabel
+                    }
+                }
+            },
+            plugins: {
+                ...(title ? {
+                    title: {
+                        display: true,
+                        text: title,
+                        font: {
+                            size: 18,
+                        },
+                        padding: {
+                            top: 10,
+                            bottom: 10,
+                        },
+                    },
+                } : {})
+            }
+        }
+    });
+}
+
+function chart3({ id, data1, data2, xlabel = "Số lượng", ylabel, title = "", binCount = 20 }) {
+    const minVal = Math.min(...data1.data, ...data2.data);
+    const maxVal = Math.max(...data1.data, ...data2.data);
+    const binSize = (maxVal - minVal) / binCount;
+
+    const x = [], y1 = [], y2 = [];
+    for (let i = 0; i < binCount; i++) {
+        const t = minVal + binSize*(0.5 + i);
+        x.push(Math.round(t*10)/10);
+        y1.push(0);
+        y2.push(0);
+    }
+
+    [data1.data, data2.data].forEach((data, i) => {
+        data.forEach(value => {
+            const binIndex = Math.min(
+                Math.floor((value - minVal) / binSize),
+                x.length - 1
+            );
+            if (i == 0) y1[binIndex]++;
+            else y2[binIndex]--;
+        });
+    });
+
+    const canvas = document.createElement("canvas");
+    document.getElementById(id).appendChild(canvas);
+    const ctx = canvas.getContext("2d");
+    new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: x,
+            datasets: [{
+                label: data1.label,
+                data: y1,
+                backgroundColor: "#1f77b4"
+            }, {
+                label: data2.label,
+                data: y2,
+                backgroundColor: "#ff6384"
+            }]
+        },
+        options: {
+            scales: {
+                x: {
+                    stacked: true,
+                    title: {
+                        display: true,
+                        text: xlabel
+                    }
+                },
+                y: {
+                    stacked: true,
+                    title: {
+                        display: true,
+                        text: ylabel
+                    },
+                    ticks: {
+                        callback: v => Math.abs(v)
+                    }
+                }
+            },
+            plugins: {
+                ...(title ? {
+                    title: {
+                        display: true,
+                        text: title,
+                        font: {
+                            size: 18,
+                        },
+                        padding: {
+                            top: 10,
+                            bottom: 10,
+                        },
+                    },
+                } : {})
+            }
+        }
+    });
 }

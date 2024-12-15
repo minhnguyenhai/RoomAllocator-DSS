@@ -38,7 +38,7 @@ def vectorize_student(student):
     # Vector hóa từng thuộc tính
     bedtime_habit = bedtime_mapping.get(student.get("bedtime_habit", "21h"), 0)
     social_style = social_style_mapping.get(student.get("social_style", "Bình thường"), 0.5)
-    academic_year = academic_year_mapping.get(student.get("academic_year", 66), 0)
+    academic_year = academic_year_mapping.get(int(student.get("academic_year", 66)), 0)
     sports_passion = sports_passion_mapping.get(student.get("sports_passion", "Bình thường"), 0.5)
     music_passion = music_passion_mapping.get(student.get("music_passion", "Bình thường"), 0.5)
     gaming_passion = gaming_passion_mapping.get(student.get("gaming_passion", "Bình thường"), 0.5)

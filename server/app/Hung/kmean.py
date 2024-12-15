@@ -9,13 +9,17 @@ main_service = MainService()
 def kmean(student_ids, rooms):
     df = pd.DataFrame([main_service.get_male_student_request_by_id(id) for id in student_ids])
     return handle_kmean_result(
-        _kmeans(df, len(rooms), get_weight()),
+        _kmeans(df, len(rooms), get_weight(), len(rooms)*2),
         rooms
     )
 
 def handle_kmean_result(kr, rooms):
-    student_ids_list = kr[0]
-    student_ids_list.sort(key=len, reverse=True)
+    student_ids_list, MDEs = kr[0], kr[1]
+    temp = []
+    for i in range(len(student_ids_list)):
+        temp.append([student_ids_list[i], MDEs[i]])
+    temp.sort(key=lambda t: t[1])
+    student_ids_list = [t[0] for t in temp]
     
     distinct_room_capacities = list(set([r["capacity"] for r in rooms]))
     distinct_room_capacities.sort(key=int)

@@ -3,6 +3,7 @@ from .. import db
 from ..models.room import Room
 from ..models.male_student_request import MaleStudentRequest
 from ..models.k_means_result import KMeansResult
+from ..models.labeled_data import LabledData
 
 
 class MainService:
@@ -43,4 +44,16 @@ class MainService:
         except Exception as e:
             db.session.rollback()
             logging.error(f"Error while saving K-means result: {e}")
+            raise
+
+    def get_all_labeled_data(self):
+        return [labeled_data.json for labeled_data in LabledData.query.all()]
+    
+    def save_labeled_data(self, *data):
+        try:
+            db.session.bulk_save_objects([LabledData(json=d) for d in data])
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            logging.error(f"Error while saving labeled data: {e}")
             raise
