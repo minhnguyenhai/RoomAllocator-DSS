@@ -332,9 +332,13 @@ async function labelData() {
 
 async function result() {
     hideAll();
+    let back = false;
     const $result = $("#result").html("").show().append(
         $('<div class="col-12"></div>').append(
-            $btn("Quay lại").on("click", home)
+            $btn("Quay lại").on("click", () => {
+                back = true;
+                home();
+            })
         )
     );
 
@@ -675,7 +679,7 @@ async function result() {
                 last = result3.result;
                 append(last);
 
-                if (stop) {
+                if (stop || back) {
                     break;
                 }
             }
