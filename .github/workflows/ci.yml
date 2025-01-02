@@ -1,0 +1,41 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches:
+      - main
+    pull_request:
+      branches:
+        - main
+
+jobs:
+  lint:
+    name: Lint Code
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [frontend, server]
+
+    steps:
+    - name: Checkout source code
+      uses: actions/checkout@v3
+
+    - name: Lint HTML and CSS (Frontend)
+      if: matrix.service == 'frontend'
+      run: |
+        cd frontend
+        npx htmlhint "**/*.html"
+        npx stylelint "**/*.css"
+
+    - name: Set up Python (Backend)
+      if: matrix.service == 'server'
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Run Lint (Backend)
+      if: matrix.service == 'server'
+      run: |
+        cd server
+        pip install flake8
+        flake8 .
