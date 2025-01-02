@@ -1,0 +1,21 @@
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# virtualenv
+venv/
+VENV/
+.venv/
+.VENV/
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+
+# Environment variables and secrets
+*.env
+*.key
+*.pem
+*.crt
